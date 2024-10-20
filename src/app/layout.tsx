@@ -1,6 +1,3 @@
-import type { Metadata } from "next";
-import localFont from "next/font/local";
-
 import "@mantine/core/styles.css";
 import React from "react";
 import { MantineProvider, ColorSchemeScript } from "@mantine/core";
@@ -12,7 +9,7 @@ export const metadata = {
   description: "Conversational surveys for quick feedback",
 };
 
-export default function RootLayout({ children }: { children: any }) {
+export default function RootLayout({ children }: React.PropsWithChildren ) {
   return (
     <html lang="en">
       <head>

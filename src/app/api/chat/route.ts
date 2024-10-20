@@ -10,7 +10,7 @@ export async function POST(req: Request) {
   const result = await streamText({
     model: openai('gpt-4o-mini'),
     messages: coreMessages,
-    async onFinish({ text, toolCalls, toolResults, usage, finishReason }) {
+    async onFinish({ text, toolCalls, toolResults, }) {
       // implement your own storage logic:
       //await saveChat({ text, toolCalls, toolResults });
       console.log(JSON.stringify({ text, toolCalls, toolResults }, null, 2));
