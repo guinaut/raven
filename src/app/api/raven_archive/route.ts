@@ -32,8 +32,7 @@ Be polite, say thank you and goodbye.`;
     system,
     prompt:'Please open the conversation with the user.',
   });
-  console.log('text', text);
-
+  
   return NextResponse.json({ 
     system_prompt: system,
     text
