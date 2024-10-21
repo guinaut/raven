@@ -1,0 +1,54 @@
+// schema.prisma
+// npx prisma generate
+// npx prisma db push
+// npx prisma studio
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url = env("POSTGRES_PRISMA_URL") // uses connection pooling
+  directUrl = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
+}
+
+model Raven {
+  id          String     @default(cuid()) @id
+  topic       String
+  directive   String
+  system_prompt String
+  short_link_id Int    @default(autoincrement())
+  short_link  String? // set when raven is sent. further protection to prevent multiple sends
+  state       RavenState   @default(READY)
+  author      User?   @relation(fields: [authorId], references: [id])
+  authorId    String?
+  messages    Message[]
+  @@map(name: "surveys")
+}
+
+model Message {
+  id          String     @default(cuid()) @id
+  role        String
+  content     String
+  raven       Raven?   @relation(fields: [ravenId], references: [id])
+  ravenId     String?
+  createdAt   DateTime  @default(now()) @map(name: "created_at")
+}
+
+model User {
+  id            String       @default(cuid()) @id
+  name          String?
+  email         String?   @unique
+  createdAt     DateTime  @default(now()) @map(name: "created_at")
+  updatedAt     DateTime  @updatedAt @map(name: "updated_at")
+  ravens        Raven[]
+  @@map(name: "users")
+}
+
+enum RavenState {
+  READY
+  ACTIVE
+  COMPLETE
+  CANCELED
+}
