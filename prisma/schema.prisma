@@ -14,35 +14,50 @@ datasource db {
 }
 
 model Raven {
-  id          String     @default(cuid()) @id
-  topic       String
-  directive   String
-  system_prompt String
-  short_link_id Int    @default(autoincrement())
-  short_link  String? // set when raven is sent. further protection to prevent multiple sends
-  state       RavenState   @default(READY)
-  author      User?   @relation(fields: [authorId], references: [id])
-  authorId    String?
-  messages    Message[]
-  @@map(name: "surveys")
+  id              String           @default(cuid()) @id
+  topic           String
+  directive       String
+  guidance        String    
+  plan            String
+  state           RavenState      @default(READY)
+  author          User?           @relation(fields: [authorId], references: [id])
+  authorId        String?
+  recipients      Recipient[]
+  send_type       RecipientType   @default(PUBLIC)
+  updatedAt       DateTime        @updatedAt @map(name: "updated_at")
+  @@map(name: "ravens")
+}
+
+model Recipient {
+  id              String          @default(cuid()) @id
+  raven           Raven           @relation(fields: [ravenId], references: [id])
+  ravenId         String
+  short_link_id   Int             @default(autoincrement())
+  short_link      String?         // set when raven is sent. further protection to prevent multiple sends
+  public_key      String?         // this is either a uuid or an email address if public vs private
+  messages        Message[]
+  createdAt       DateTime        @default(now()) @map(name: "created_at")
+  updatedAt       DateTime        @updatedAt @map(name: "updated_at")
+  @@map(name: "recipients")
 }
 
 model Message {
-  id          String     @default(cuid()) @id
-  role        String
-  content     String
-  raven       Raven?   @relation(fields: [ravenId], references: [id])
-  ravenId     String?
-  createdAt   DateTime  @default(now()) @map(name: "created_at")
+  id              String          @default(cuid()) @id
+  role            String
+  content         Json
+  recipient       Recipient?      @relation(fields: [recipientId], references: [id])
+  recipientId     String?
+  createdAt       DateTime        @default(now()) @map(name: "created_at")
+  @@map(name: "messages")
 }
 
 model User {
-  id            String       @default(cuid()) @id
-  name          String?
-  email         String?   @unique
-  createdAt     DateTime  @default(now()) @map(name: "created_at")
-  updatedAt     DateTime  @updatedAt @map(name: "updated_at")
-  ravens        Raven[]
+  id              String          @default(cuid()) @id
+  name            String?
+  email           String?         @unique
+  createdAt       DateTime        @default(now()) @map(name: "created_at")
+  updatedAt       DateTime        @updatedAt @map(name: "updated_at")
+  ravens          Raven[]
   @@map(name: "users")
 }
 
@@ -51,4 +66,9 @@ enum RavenState {
   ACTIVE
   COMPLETE
   CANCELED
+}
+
+enum RecipientType {
+  PRIVATE
+  PUBLIC
 }

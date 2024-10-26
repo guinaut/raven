@@ -6,12 +6,21 @@ import {
   Text,
   Center,
   Flex,
+  Button,
 } from "@mantine/core";
 
-import { CreateRaven } from '../components/create-raven';
-import { RavenList } from '../components/list-ravens';
+import { useRouter } from 'next/navigation';
 
 export default function HomePage() {
+  const router = useRouter();
+
+  const handleNewRaven = () => {
+    router.push('/aerie/new');
+  }
+
+  const handleAerie = () => {
+    router.push('/aerie/list');
+  }
 
   return (
     <Group grow>
@@ -23,8 +32,8 @@ export default function HomePage() {
               </Text>
           </Center>
           <Flex h={600} gap="sm" justify="flex-start" align="flex-start">
-            <CreateRaven />
-            <RavenList />
+            <Button variant="filled" color="orange" onClick={handleNewRaven}>Send a Raven</Button>
+            <Button variant="filled" color="yellow" onClick={handleAerie}>Visit the Aerie</Button>
           </Flex>
         </Stack>
       </Center>

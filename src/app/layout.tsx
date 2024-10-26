@@ -18,7 +18,6 @@ export default function RootLayout({ children }: React.PropsWithChildren ) {
           name="viewport"
           content="minimum-scale=1, initial-scale=1, width=device-width, user-scalable=no"
         />
-        <ColorSchemeScript />
       </head>
       <body>
         <MantineProvider defaultColorScheme="dark" theme={theme}>{children}</MantineProvider>

@@ -4,11 +4,10 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "prisma generate && next build",
     "start": "next start",
     "lint": "next lint",
-    "postinstall": "prisma generate",
-    "build": "prisma generate && next build"
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@ai-sdk/openai": "^0.0.68",
@@ -17,11 +16,15 @@
     "@mantine/form": "^7.13.3",
     "@mantine/hooks": "^7.13.3",
     "@prisma/client": "^5.21.1",
+    "@types/js-cookie": "^3.0.6",
     "@vercel/postgres": "^0.10.0",
     "ai": "^3.4.16",
+    "js-cookie": "^3.0.5",
+    "nanoid": "^5.0.7",
     "next": "14.2.15",
     "react": "^18",
     "react-dom": "^18",
+    "react-icons": "^5.3.0",
     "react-markdown": "^9.0.1",
     "sqids": "^0.3.0",
     "swr": "^2.2.5",

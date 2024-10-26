@@ -1,18 +1,11 @@
 // components/RavenList.tsx
 import NextImage from 'next/image';
 import { useState, useEffect, MouseEventHandler } from 'react';
-import { Card, Text, Group, Image, Badge, Button, } from '@mantine/core';
+import { Card, Text, Group, Image, Badge, Button,Stack, } from '@mantine/core';
 import { Raven } from '@prisma/client';  // Assuming you have the Prisma types available
 
 import ravenReadyImage from '../assets/raven-resting.png';
 import ravenLaunchImage from '../assets/raven-launching.png';
-
-/*
-  READY
-  ACTIVE
-  COMPLETE
-  CANCELED
-*/
 
 interface RavenState {
     status: string;
@@ -23,7 +16,7 @@ interface RavenState {
 }
 
 const saveRaven = async (raven: Raven) => {
-    const { id, state, short_link_id } = raven;
+    const { id, state } = raven;
     try {
         const res = await fetch('/api/v1/raven', {
             headers: new Headers({
@@ -32,7 +25,7 @@ const saveRaven = async (raven: Raven) => {
             credentials: 'same-origin',
             method: 'POST',
             body: JSON.stringify({
-                id, state, short_link_id,
+                id, state,
             }),
         });
         const data = await res.json();
@@ -45,6 +38,7 @@ const saveRaven = async (raven: Raven) => {
 
 const RavenCard = (props: { raven: Raven }) => {
     const [ raven, setRaven ] = useState<Raven>(props.raven);
+    const [ shortlink, setShortLink ] = useState<string | null>(null);
     const [ controlState, setControlState ] = useState<RavenState>({
         status: 'Loading',
         status_color: 'gray.3',
@@ -55,8 +49,18 @@ const RavenCard = (props: { raven: Raven }) => {
         },
     });
 
+    const openRaven = (short_link: string | null) => {
+        if (!short_link) return;
+        window.open(`http://localhost:3000/raven/${short_link}`, '_blank');
+    };
+
     useEffect(() => {
         if (raven) {
+            if (raven.send_type.toUpperCase() === 'PUBLIC') {
+                if (raven.recipients && raven.recipients.length > 0) {
+                    setShortLink(raven.recipients[0].short_link);
+                }
+            }
             if (raven.state === 'READY') {
                 setControlState({
                     status: 'Ready',
@@ -116,23 +120,24 @@ const RavenCard = (props: { raven: Raven }) => {
                     alt={controlState.status}
                 />
             </Card.Section>
+            <Card.Section>
+                <Group justify="space-between" m="sm">
+                    <Text fw={500}>{raven.topic}</Text>
+                    <Badge color={controlState.status_color}>{controlState.status}</Badge>
+                </Group>
+                {shortlink && (
+                <Stack justify="space-between" m="sm">
+                    <Text fw={500} size="xs" ><Button variant="subtle" onClick={()=> openRaven(shortlink)}>{`https://localhost:3000/raven/${shortlink}`}</Button></Text>
+                    <Text size="sm" c="dimmed">
+                        {raven.directive}
+                    </Text>
+                </Stack>)}
 
-            <Group justify="space-between" mt="md" mb="xs">
-                <Text fw={500}>{raven.topic}</Text>
-                <Badge color={controlState.status_color}>{controlState.status}</Badge>
-            </Group>
-            {raven.short_link && (
-            <Group justify="space-between" mt="md" mb="xs">
-                <Text fw={500} size="xs" >{`https://ravenchat.io/${raven.short_link}`}</Text>
-            </Group>)}
 
-            <Text size="sm" c="dimmed">
-                {raven.directive}
-            </Text>
-
-            <Button fullWidth mt="md" radius="md" onClick={controlState.next_action}>
-                {controlState.action_text}
-            </Button>
+                <Button fullWidth mt="md" radius="md" onClick={controlState.next_action}>
+                    {controlState.action_text}
+                </Button>
+            </Card.Section>
         </Card>
     );
 };
