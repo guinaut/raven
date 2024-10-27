@@ -34,7 +34,9 @@ model Recipient {
   ravenId         String
   short_link_id   Int             @default(autoincrement())
   short_link      String?         // set when raven is sent. further protection to prevent multiple sends
-  public_key      String?         // this is either a uuid or an email address if public vs private
+  public_key      String?         // this is either a uuid or an email address of the contact
+  private_email   String?         // this is the email address of the contact
+  contactId       String?
   messages        Message[]
   createdAt       DateTime        @default(now()) @map(name: "created_at")
   updatedAt       DateTime        @updatedAt @map(name: "updated_at")
@@ -58,7 +60,19 @@ model User {
   createdAt       DateTime        @default(now()) @map(name: "created_at")
   updatedAt       DateTime        @updatedAt @map(name: "updated_at")
   ravens          Raven[]
+  contacts        Contact[]
   @@map(name: "users")
+}
+
+model Contact {
+  id              String          @default(cuid()) @id
+  name            String?
+  email           String?         @unique
+  user            User            @relation(fields: [userId], references: [id])
+  userId          String
+  createdAt       DateTime        @default(now()) @map(name: "created_at")
+  updatedAt       DateTime        @updatedAt @map(name: "updated_at")
+  @@map(name: "contacts")
 }
 
 enum RavenState {

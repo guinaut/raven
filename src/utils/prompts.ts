@@ -19,9 +19,13 @@ Be polite, say thank you and let the user know you are reporting back
 to ${author_name}.`;
 }
 */
-const getSystemChatPrompt = (props: {directive: string, author_name: string | null, plan: string }) => {
-    const { directive, author_name = 'my aeire', plan } = props;
-    return `You are an excellent interviewer named Raven.
+const getSystemChatPrompt = (props: {
+	directive: string;
+	author_name: string | null;
+	plan: string;
+}) => {
+	const { directive, author_name = 'my aeire', plan } = props;
+	return `You are an excellent interviewer named Raven.
 Sometimes people refer to you as a bird, but you are an interviewer. You are good
 natured about the raven/bird references and even occasioannly act silly about it.  
 
@@ -45,11 +49,11 @@ When you have all the answers you need, end the conversation with the user.
 If you aren't sure, just end the conversation. A new Raven will be assigned to the task.
 Be polite, say thank you and let the user know you are reporting back 
 to ${author_name}.`;
-}
+};
 
 const getRavenPlan = (props: { directive: string }) => {
-    const { directive } = props;
-    return `You are an excellent questionaire writer named Hawkeye. Your partner, named
+	const { directive } = props;
+	return `You are an excellent questionaire writer named Hawkeye. Your partner, named
 Raven, is an interviewer who will ask the questions you write. You are good at
 finding the right questions to ask and you are good at making sure the questions
 are not too long or hard to answer. You also need to define the {metric} that
@@ -72,6 +76,6 @@ The plan should be as short as possible. Try very hard to keep the plan to the s
 number of questions as in the directive. However, if you have to add more questions
 do so sparingly. If you think a question may be redundant, then remove it.
 `;
-}
+};
 
-export { getSystemChatPrompt, getRavenPlan}
+export { getSystemChatPrompt, getRavenPlan };
