@@ -8,7 +8,7 @@ import { Contact } from '@prisma/client';
 function useContacts(url: string, userId: string | undefined) {
 	const fetcher = async (url: string, userId: string | undefined) => {
 		if (!userId || userId.length === 0) {
-			return null;
+			return [];
 		}
 		return fetch(url, {
 			headers: new Headers({
@@ -49,42 +49,37 @@ const EmailSelector = (props: {
 	onFocus?: (event: React.FocusEvent<HTMLInputElement>) => void;
 	value?: string[];
 }) => {
-	const userId = 'cm2qbp50s0000s98b9jrf2zah';
 	const { onChange } = props;
 
 	const combobox = useCombobox({
 		onDropdownClose: () => combobox.resetSelectedOption(),
 		onDropdownOpen: () => combobox.updateSelectedOptionIndex('active'),
 	});
+	const [userId, setUserId] = useState<string>('');
 	const [search, setSearch] = useState('');
 	const [pills, setPills] = useState<string[]>(['Public']);
 	const [isPublic, setIsPublic] = useState(true);
-	const [pastEmails, setPastEmails] = useState<string[]>([
-		'user1@example.com',
-		'user2@example.com',
-		'user3@example.com',
-	]);
+	const [pastEmails, setPastEmails] = useState<string[]>([]);
 	const { contacts, isLoading, isError } = useContacts(
 		'/api/v1/account/contact/list',
 		userId,
 	);
 
-	useEffect(() => {
-		if (onChange) {
-			onChange(pills);
-		}
-	}, [pills, onChange]);
-
 	const handleValueSelect = (val: string) => {
 		if (val === 'Public') {
 			setIsPublic(true);
 			setPills(['Public']);
+			if (onChange) {
+				onChange(['Public']);
+			}
 		} else if (!isPublic) {
-			setPills((current) =>
-				current.includes(val)
-					? current.filter((v) => v !== val)
-					: [...current, val],
-			);
+			const newPills = pills.includes(val)
+				? pills.filter((v) => v !== val)
+				: [...pills, val];
+			setPills(newPills);
+			if (onChange) {
+				onChange(newPills);
+			}
 		}
 	};
 
@@ -117,6 +112,10 @@ const EmailSelector = (props: {
 			setPastEmails(contacts.map((contact: Contact) => contact.email));
 		}
 	}, [contacts, isLoading, isError]);
+
+	useEffect(() => {
+		setUserId('cm2qbp50s0000s98b9jrf2zah');
+	}, []);
 
 	const values = pills.map((item) => (
 		<Pill key={item} withRemoveButton onRemove={() => handleValueRemove(item)}>

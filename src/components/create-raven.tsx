@@ -58,7 +58,7 @@ const CreateRaven = () => {
 			directive: (value) =>
 				value.length > 10 ? null : 'Sqwak! Need detail to ask question!',
 			recipients: (value) =>
-				value.length > 0 ? null : 'Sqwak! Who am I talking to?!',
+				value.length >= 1 ? null : 'Sqwak! Who am I talking to?!',
 		},
 	});
 
@@ -78,11 +78,6 @@ const CreateRaven = () => {
 		saveRaven();
 	};
 
-	/*
-    useEffect(() => {
-        setUserId('user1');
-    }, []);
-*/
 	return (
 		<Card
 			shadow="sm"
