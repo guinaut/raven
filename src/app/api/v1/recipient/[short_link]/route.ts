@@ -10,22 +10,14 @@ interface ExtendedRecipient extends Recipient {
 	messages?: Message[];
 }
 
-const getRecipientByShortLink = async (props: {
-	recipients: Recipient[];
-	public_key: string;
-	email: string;
-}): Promise<Recipient> => {
+const getRecipientByShortLink = async (props: { recipients: Recipient[]; public_key: string; email: string }): Promise<Recipient> => {
 	const { recipients, public_key, email } = props;
-	const existing_recipient = recipients.find(
-		(recipient) => recipient.public_key === public_key,
-	);
+	const existing_recipient = recipients.find((recipient) => recipient.public_key === public_key);
 	if (existing_recipient) {
 		return existing_recipient;
 	}
 	const usePublicKey = public_key && public_key.length > 0 ? public_key : nanoid();
-	const public_key_recipient = recipients.find(
-		(recipient) => recipient.public_key === usePublicKey,
-	);
+	const public_key_recipient = recipients.find((recipient) => recipient.public_key === usePublicKey);
 	if (public_key_recipient) {
 		// if the public_key is not empty, then the two public_keys must match
 		// IF YES  return the recipient
@@ -70,9 +62,8 @@ export async function POST(req: Request, { params }: { params: { short_link: str
 	try {
 		const { short_link } = params;
 		const { public_key, email } = await req.json();
+		//const newPublicKey = public_key && public_key.length > 0 ? public_key : nanoid();
 		const newPublicKey = nanoid();
-
-		console.log(short_link, public_key, email);
 
 		if (!short_link) {
 			return NextResponse.error();
@@ -88,23 +79,31 @@ export async function POST(req: Request, { params }: { params: { short_link: str
 				messages: true,
 			},
 		});
+		// quick check on the two most common scenarios
+		if ((!email || email.length === 0) && public_key && public_key.length > 0 && recipients.length > 0) {
+			const public_key_recipient = recipients.find((recipient) => recipient.public_key === public_key);
+			if (public_key_recipient) {
+				console.log('Found Common Public Case');
+				return NextResponse.json(public_key_recipient);
+			}
+		} else if (email && email.length > 0 && public_key && public_key.length > 0 && recipients.length > 0) {
+			const email_key_recipient = recipients.find((recipient) => recipient.public_key === public_key && recipient.private_email === email);
+			if (email_key_recipient) {
+				console.log('Found Common Email Case');
+				return NextResponse.json(email_key_recipient);
+			}
+		}
 
 		if (recipients && recipients.length > 0) {
 			// if the Raven is Private and the email is not empty, then it must match the recipient.private_email
 
 			// if the Raven is Private and the email is empty, then return a challenge to provide an email
-			if (
-				!email ||
-				(email.length === 0 && recipients[0].raven.send_type === 'PRIVATE')
-			) {
+			if ((!email || email.length === 0) && recipients[0].raven.send_type === 'PRIVATE') {
 				return NextResponse.json({
 					challenge: 'EMAIL',
 					message: `I'm a private Raven.  Please provide your email address to receive the message.`,
 				});
-			} else if (
-				email ||
-				(email.length > 0 && recipients[0].raven.send_type === 'PRIVATE')
-			) {
+			} else if (email && email.length > 0 && recipients[0].raven.send_type === 'PRIVATE') {
 				const email_recipient = recipients.find((r) => r.private_email === email);
 				if (!email_recipient) {
 					return NextResponse.json({
@@ -113,11 +112,7 @@ export async function POST(req: Request, { params }: { params: { short_link: str
 					});
 				} else {
 					//if public_key is empty but the email matches, then update the recipient with the public_key
-					if (
-						(!email_recipient.public_key ||
-							email_recipient.public_key === '') &&
-						email_recipient.private_email === email
-					) {
+					if ((!email_recipient.public_key || email_recipient.public_key === '') && email_recipient.private_email === email) {
 						const send_email_recipient = await prisma.recipient.update({
 							where: { id: email_recipient.id },
 							data: {

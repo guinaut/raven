@@ -19,11 +19,7 @@ Be polite, say thank you and let the user know you are reporting back
 to ${author_name}.`;
 }
 */
-const getSystemChatPrompt = (props: {
-	directive: string;
-	author_name: string | null;
-	plan: string;
-}) => {
+const getSystemChatPrompt = (props: { directive: string; author_name: string | null; plan: string }) => {
 	const { directive, author_name = 'my aeire', plan } = props;
 	return `You are an excellent interviewer named Raven.
 Sometimes people refer to you as a bird, but you are an interviewer. You are good

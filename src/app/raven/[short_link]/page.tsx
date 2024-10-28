@@ -1,17 +1,6 @@
 'use client';
 
-import {
-	Group,
-	Stack,
-	Text,
-	Box,
-	Center,
-	TextInput,
-	Button,
-	Flex,
-	Paper,
-	ScrollArea,
-} from '@mantine/core';
+import { Group, Stack, Text, Box, Center, TextInput, Button, Flex, Paper, ScrollArea } from '@mantine/core';
 import Cookies from 'js-cookie';
 import { useForm } from '@mantine/form';
 import { useChat, Message } from 'ai/react';
@@ -36,12 +25,7 @@ interface RavenRecipient {
 }
 
 function useRecipient(short_link: string, public_key: string, email: string) {
-	const fetcher = async (
-		url: string,
-		short_link: string,
-		public_key: string,
-		email: string,
-	) => {
+	const fetcher = async (url: string, short_link: string, public_key: string, email: string) => {
 		if (short_link.length === 0) {
 			return null;
 		}
@@ -65,9 +49,8 @@ function useRecipient(short_link: string, public_key: string, email: string) {
 			});
 	};
 
-	const { data, error, isLoading } = useSWR(
-		[`/api/v1/recipient/${short_link}`, short_link, email],
-		([url, short_link, email]) => fetcher(url, short_link, public_key, email),
+	const { data, error, isLoading } = useSWR([`/api/v1/recipient/${short_link}`, short_link, email], ([url, short_link, email]) =>
+		fetcher(url, short_link, public_key, email),
 	);
 
 	return {
@@ -79,8 +62,7 @@ function useRecipient(short_link: string, public_key: string, email: string) {
 
 const updateCookie = (props: { public_key?: string; email?: string }) => {
 	const ravenCookie: string | undefined = Cookies.get('ravenCookie');
-	const parse_cookie =
-		ravenCookie && ravenCookie.length > 0 ? JSON.parse(ravenCookie as string) : {};
+	const parse_cookie = ravenCookie && ravenCookie.length > 0 ? JSON.parse(ravenCookie as string) : {};
 	const new_cookie = {
 		...parse_cookie,
 		...props,
@@ -123,28 +105,35 @@ export default function Page({ params }: { params: { short_link: string } }) {
 		};
 	};
 
+	const updateMessages = (_msgs: Message[]) => {
+		messages.push(..._msgs);
+	};
+
 	useEffect(() => {
 		if (!isLoading && data) {
 			if (data.challenge) {
 				setIsPrivate(true);
 			} else {
 				updateCookie({ public_key: data.public_key });
+				const _msgs: Message[] = data.messages.map((m: RavenMessage) => {
+					return {
+						role: m.content.role,
+						content: m.content.text,
+						id: m.id,
+					} as Message;
+				});
+				updateMessages(_msgs);
 				setRecipient(data);
 				setIsPrivate(false);
 			}
 		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [data, isLoading]);
 
 	useEffect(() => {
-		//console.log('recipient:', recipient);
 		if (recipient && messages && append) {
-			if (recipient.messages && recipient.messages.length === 1) {
-				const first_msg: RavenMessage = recipient.messages[0];
-				messages.push({
-					role: first_msg.role,
-					content: first_msg.content.text,
-					id: first_msg.id,
-				});
+			if (recipient.messages && recipient.messages.length === 1 && messages.length === 1) {
+				console.log('Appending!', messages);
 				append(
 					{
 						role: 'system',
@@ -157,18 +146,11 @@ export default function Page({ params }: { params: { short_link: string } }) {
 					},
 				);
 			} else {
-				const _msgs: Message[] = recipient.messages.map((m: RavenMessage) => {
-					return {
-						role: m.content.role,
-						content: m.content.text,
-						id: m.id,
-					} as Message;
-				});
-				messages.push(..._msgs);
 				setViewMessages([...messages]);
 			}
 		}
-	}, [recipient, append, messages]);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [recipient, append]);
 
 	// for the scroll space
 	const viewport = useRef<HTMLDivElement>(null);
@@ -183,8 +165,7 @@ export default function Page({ params }: { params: { short_link: string } }) {
 			user_response: '',
 		},
 		validate: {
-			user_response: (value) =>
-				value.length >= 1 ? null : 'Let me know what you really think.',
+			user_response: (value) => (value.length >= 1 ? null : 'Let me know what you really think.'),
 		},
 	});
 
@@ -255,94 +236,41 @@ export default function Page({ params }: { params: { short_link: string } }) {
 						>
 							{isPrivate ? (
 								<>
-									<EmailChallenge
-										onChallengeComplete={(e: string) =>
-											handleChallengeComplete(e)
-										}
-									/>
+									<EmailChallenge onChallengeComplete={(e: string) => handleChallengeComplete(e)} />
 								</>
 							) : (
 								<>
 									<ScrollArea viewportRef={viewport}>
 										<Box w="100%" m={0}>
-											{viewMessages.map(
-												(m: {
-													role: string;
-													content: string;
-													id: string;
-												}) => (
-													<Stack
-														key={`stack-${m.id}`}
-														p={0}
-														m={0}
-													>
-														{m && m.content && (
-															<>
-																{m.role === 'user' && (
-																	<Group
-																		justify="flex-end"
-																		pt={5}
-																	>
-																		<Paper
-																			w="90%"
-																			shadow="xs"
-																			radius="md"
-																			withBorder
-																			p="xs"
-																			bg="blue.8"
-																		>
-																			<Text size="sm">
-																				{' '}
-																				{
-																					m.content
-																				}
-																			</Text>
-																		</Paper>
-																	</Group>
-																)}
+											{viewMessages.map((m: { role: string; content: string; id: string }, index) => (
+												<Stack key={`stack-${m.id}-${index}`} p={0} m={0}>
+													{m && m.content && (
+														<>
+															{m.role === 'user' && (
+																<Group justify="flex-end" pt={5}>
+																	<Paper w="90%" shadow="xs" radius="md" withBorder p="xs" bg="blue.8">
+																		<Text size="sm"> {m.content}</Text>
+																	</Paper>
+																</Group>
+															)}
 
-																{m.role ===
-																	'assistant' && (
-																	<Group
-																		justify="flex-start"
-																		pt={5}
-																		m={0}
-																	>
-																		<Paper
-																			w="90%"
-																			shadow="xs"
-																			radius="md"
-																			withBorder
-																			p="xs"
-																			bg="green.8"
-																			m={0}
-																		>
-																			<Text
-																				size="sm"
-																				component="span"
-																			>
-																				<Markdown>
-																					{
-																						m.content
-																					}
-																				</Markdown>
-																			</Text>
-																		</Paper>
-																	</Group>
-																)}
-															</>
-														)}
-													</Stack>
-												),
-											)}
+															{m.role === 'assistant' && (
+																<Group justify="flex-start" pt={5} m={0}>
+																	<Paper w="90%" shadow="xs" radius="md" withBorder p="xs" bg="green.8" m={0}>
+																		<Text size="sm" component="span">
+																			<Markdown>{m.content}</Markdown>
+																		</Text>
+																	</Paper>
+																</Group>
+															)}
+														</>
+													)}
+												</Stack>
+											))}
 										</Box>
 									</ScrollArea>
 									<Box w="100%" m={0}>
-										<form
-											onSubmit={form.onSubmit((values) =>
-												handleSubmitUserChatMessage(values),
-											)}
-										>
+										<form onSubmit={form.onSubmit((values) => handleSubmitUserChatMessage(values))}>
 											<TextInput
 												size="sm"
 												withAsterisk

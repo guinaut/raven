@@ -29,10 +29,7 @@ function useContacts(url: string, userId: string | undefined) {
 			});
 	};
 
-	const { data, error, isLoading } = useSWR(
-		[`/api/v1/account/contact/list`, userId],
-		([url, userId]) => fetcher(url, userId),
-	);
+	const { data, error, isLoading } = useSWR([`/api/v1/account/contact/list`, userId], ([url, userId]) => fetcher(url, userId));
 
 	return {
 		contacts: data,
@@ -49,7 +46,7 @@ const EmailSelector = (props: {
 	onFocus?: (event: React.FocusEvent<HTMLInputElement>) => void;
 	value?: string[];
 }) => {
-	const { onChange } = props;
+	const { onChange, error } = props;
 
 	const combobox = useCombobox({
 		onDropdownClose: () => combobox.resetSelectedOption(),
@@ -57,13 +54,10 @@ const EmailSelector = (props: {
 	});
 	const [userId, setUserId] = useState<string>('');
 	const [search, setSearch] = useState('');
-	const [pills, setPills] = useState<string[]>(['Public']);
-	const [isPublic, setIsPublic] = useState(true);
+	const [pills, setPills] = useState<string[]>([]);
+	const [isPublic, setIsPublic] = useState(false);
 	const [pastEmails, setPastEmails] = useState<string[]>([]);
-	const { contacts, isLoading, isError } = useContacts(
-		'/api/v1/account/contact/list',
-		userId,
-	);
+	const { contacts, isLoading, isError } = useContacts('/api/v1/account/contact/list', userId);
 
 	const handleValueSelect = (val: string) => {
 		if (val === 'Public') {
@@ -73,12 +67,10 @@ const EmailSelector = (props: {
 				onChange(['Public']);
 			}
 		} else if (!isPublic) {
-			const newPills = pills.includes(val)
-				? pills.filter((v) => v !== val)
-				: [...pills, val];
-			setPills(newPills);
+			const new_pills = pills.includes(val) ? pills.filter((v) => v !== val) : [...pills, val];
+			setPills(new_pills);
 			if (onChange) {
-				onChange(newPills);
+				onChange(new_pills);
 			}
 		}
 	};
@@ -87,21 +79,28 @@ const EmailSelector = (props: {
 		if (val === 'Public') {
 			setIsPublic(false);
 			setPills([]);
+			if (onChange) {
+				onChange([]);
+			}
 		} else {
-			setPills((current) => current.filter((v) => v !== val));
+			const new_pills: string[] = pills.filter((v) => v !== val);
+			setPills(new_pills);
+			if (onChange) {
+				onChange(new_pills);
+			}
 		}
 	};
 
 	const handleCustomEmailAdd = () => {
 		const email = search.trim();
-		if (
-			email &&
-			/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(email) &&
-			!pills.includes(email)
-		) {
-			setPills((current) => [...current, email]);
+		if (email && /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(email) && !pills.includes(email)) {
+			const new_pills = [...pills, email];
 			if (!pastEmails.includes(email)) {
 				setPastEmails((current) => [...current, email]);
+			}
+			setPills(new_pills);
+			if (onChange) {
+				onChange(new_pills);
 			}
 			setSearch('');
 		}
@@ -125,23 +124,17 @@ const EmailSelector = (props: {
 
 	const options = [
 		<Combobox.Option value="Public" key="Public">
-			<Group gap="sm">
+			<Group gap="sm" m={0} p={0}>
 				{isPublic ? <CheckIcon size={12} /> : null}
 				<span>Public</span>
 			</Group>
 		</Combobox.Option>,
 		...(!isPublic
 			? pastEmails
-					.filter((item) =>
-						item.toLowerCase().includes(search.trim().toLowerCase()),
-					)
+					.filter((item) => item.toLowerCase().includes(search.trim().toLowerCase()))
 					.map((item) => (
-						<Combobox.Option
-							value={item}
-							key={item}
-							active={pills.includes(item)}
-						>
-							<Group gap="sm">
+						<Combobox.Option value={item} key={item} active={pills.includes(item)}>
+							<Group gap="sm" m={0} p={0}>
 								{pills.includes(item) ? <CheckIcon size={12} /> : null}
 								<span>{item}</span>
 							</Group>
@@ -153,10 +146,7 @@ const EmailSelector = (props: {
 	return (
 		<Combobox store={combobox} onOptionSubmit={handleValueSelect}>
 			<Combobox.DropdownTarget>
-				<PillsInput
-					label="Who is this for?"
-					onClick={() => combobox.openDropdown()}
-				>
+				<PillsInput error={error} label="Who is this for?" onClick={() => combobox.openDropdown()}>
 					<Pill.Group>
 						{values}
 
@@ -174,10 +164,7 @@ const EmailSelector = (props: {
 									if (event.key === 'Enter') {
 										event.preventDefault();
 										handleCustomEmailAdd();
-									} else if (
-										event.key === 'Backspace' &&
-										search.length === 0
-									) {
+									} else if (event.key === 'Backspace' && search.length === 0) {
 										event.preventDefault();
 										handleValueRemove(pills[pills.length - 1]);
 									}
@@ -189,13 +176,7 @@ const EmailSelector = (props: {
 			</Combobox.DropdownTarget>
 
 			<Combobox.Dropdown>
-				<Combobox.Options>
-					{options.length > 0 ? (
-						options
-					) : (
-						<Combobox.Empty>Nothing found...</Combobox.Empty>
-					)}
-				</Combobox.Options>
+				<Combobox.Options>{options.length > 0 ? options : <Combobox.Empty>Nothing found...</Combobox.Empty>}</Combobox.Options>
 			</Combobox.Dropdown>
 		</Combobox>
 	);

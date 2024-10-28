@@ -1,6 +1,6 @@
 import { ActionIcon, Box, Flex, Center, Text } from '@mantine/core';
 //import { IoIosArrowBack,  } from "react-icons/io";
-import { GiNestBirds, GiFruitTree } from 'react-icons/gi';
+import { /*GiNestBirds,*/ GiFruitTree, GiBirdHouse } from 'react-icons/gi';
 import { useRouter } from 'next/navigation';
 
 export function ReturnHome(props: { miw: number }) {
@@ -10,13 +10,7 @@ export function ReturnHome(props: { miw: number }) {
 	};
 	return (
 		<Box {...props}>
-			<ActionIcon
-				size="md"
-				onClick={handleGoHome}
-				variant="filled"
-				color="orange"
-				aria-label="Return Home"
-			>
+			<ActionIcon size="md" onClick={handleGoHome} variant="filled" color="orange" aria-label="Return Home">
 				<GiFruitTree style={{ width: '70%', height: '70%' }} stroke="1.5" />
 			</ActionIcon>
 		</Box>
@@ -30,14 +24,8 @@ export function GoToAerie(props: { miw: number }) {
 	};
 	return (
 		<Box {...props}>
-			<ActionIcon
-				size="md"
-				onClick={handleGoAerie}
-				variant="filled"
-				color="orange"
-				aria-label="Go to Aerie"
-			>
-				<GiNestBirds style={{ width: '70%', height: '70%' }} stroke="1.5" />
+			<ActionIcon size="md" onClick={handleGoAerie} variant="filled" color="orange" aria-label="Go to Aerie">
+				<GiBirdHouse style={{ width: '70%', height: '70%' }} stroke="1.5" />
 			</ActionIcon>
 		</Box>
 	);

@@ -29,7 +29,8 @@ export async function POST(req: Request) {
 	const result = await streamText({
 		model: openai('gpt-4o-mini'),
 		messages: coreMessages,
-		async onFinish({ text }) {
+		onFinish: async ({ text }) => {
+			console.log('onFinish', text);
 			const last_msg = coreMessages[coreMessages.length - 1];
 			const persistMessages: ChatMessage[] = [
 				{
@@ -52,6 +53,5 @@ export async function POST(req: Request) {
 			await saveChat(persistMessages);
 		},
 	});
-
 	return result.toDataStreamResponse();
 }

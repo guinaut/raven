@@ -64,8 +64,7 @@ export async function PUT(req: Request) {
 				const calc_short_link = (link_id: number): string => {
 					const sqids = new Sqids({
 						minLength: 10,
-						alphabet:
-							'waU04Tzt9fHQrqSVKdpimLGIJOgb5ZEFxnXM1kBN6cuhsAvjW3Co7l2RePyY8D',
+						alphabet: 'waU04Tzt9fHQrqSVKdpimLGIJOgb5ZEFxnXM1kBN6cuhsAvjW3Co7l2RePyY8D',
 					});
 					const new_link = sqids.encode([link_id]);
 					return new_link;
@@ -126,8 +125,7 @@ export async function PUT(req: Request) {
 					const calc_short_link = (link_id: number): string => {
 						const sqids = new Sqids({
 							minLength: 10,
-							alphabet:
-								'waU04Tzt9fHQrqSVKdpimLGIJOgb5ZEFxnXM1kBN6cuhsAvjW3Co7l2RePyY8D',
+							alphabet: 'waU04Tzt9fHQrqSVKdpimLGIJOgb5ZEFxnXM1kBN6cuhsAvjW3Co7l2RePyY8D',
 						});
 						const new_link = sqids.encode([link_id]);
 						return new_link;

@@ -1,42 +1,68 @@
 import { useState, useEffect } from 'react';
+import useSWR from 'swr';
 import { Stack, Loader, Center, SegmentedControl } from '@mantine/core';
 import { Raven } from '@prisma/client'; // Assuming you have the Prisma types available
 import { RavenCard } from './raven-card';
 
+/*
+  READY
+  ACTIVE
+  COMPLETE
+  CANCELED
+*/
+
+function useRavens() {
+	const fetcher = async (url: string) => {
+		return fetch(url, {
+			headers: new Headers({
+				'Content-Type': 'application/json',
+			}),
+			credentials: 'same-origin',
+			method: 'GET',
+		})
+			.then((res) => res.json())
+			.then((data) => {
+				return data;
+			})
+			.catch((error) => {
+				console.error('Error fetching:', error);
+			});
+	};
+
+	const { data, error, isLoading } = useSWR([`/api/v1/account/raven/list`], ([url]) => fetcher(url));
+
+	return {
+		ravens: data,
+		isLoading,
+		isError: error,
+	};
+}
+
 const RavenList = () => {
-	const [ravens, setRavens] = useState([]);
-	const [viewRavens, setViewRavens] = useState([]);
+	const { ravens, isLoading } = useRavens();
+	const [viewRavens, setViewRavens] = useState<Raven[]>([]);
 
-	const [loading, setLoading] = useState(true);
-
-	const options: string[] = ['Ready', 'In Flight', 'Canceled'];
+	const options: string[] = ['READY', 'ACTIVE', 'CANCELED'];
 	const [filterBy, setFilterBy] = useState(options[1]);
 
-	useEffect(() => {
-		const fetchRavens = async () => {
-			try {
-				const res = await fetch('/api/v1/account/raven/list');
-				const data = await res.json();
-				setRavens(data);
-			} catch (error) {
-				console.error('Error fetching ravens:', error);
-			} finally {
-				setLoading(false);
-			}
-		};
-
-		fetchRavens();
-	}, []);
-
-	useEffect(() => {
-		if (filterBy === 'Ready') {
-			setViewRavens(ravens.filter((raven: Raven) => raven.state === 'READY'));
-		} else if (filterBy === 'In Flight') {
-			setViewRavens(ravens.filter((raven: Raven) => raven.state === 'ACTIVE'));
-		} else if (filterBy === 'Canceled') {
-			setViewRavens(ravens.filter((raven: Raven) => raven.state === 'CANCELED'));
+	const handleRavenChanged = (props: { raven: Raven }) => {
+		const { raven } = props;
+		if (raven) {
+			setFilterBy(raven.state);
 		}
-	}, [ravens, filterBy]);
+	};
+
+	useEffect(() => {
+		if (!isLoading && ravens && ravens.length > 0) {
+			if (filterBy === 'READY') {
+				setViewRavens(ravens.filter((raven: Raven) => raven.state === 'READY'));
+			} else if (filterBy === 'ACTIVE') {
+				setViewRavens(ravens.filter((raven: Raven) => raven.state === 'ACTIVE'));
+			} else if (filterBy === 'CANCELED') {
+				setViewRavens(ravens.filter((raven: Raven) => raven.state === 'CANCELED'));
+			}
+		}
+	}, [ravens, isLoading, filterBy]);
 
 	return (
 		<Stack w={340}>
@@ -50,14 +76,14 @@ const RavenList = () => {
 				transitionTimingFunction="linear"
 			/>
 
-			{loading ? (
+			{isLoading ? (
 				<Center mih={300}>
 					<Loader />
 				</Center>
 			) : (
 				<>
 					{viewRavens.map((raven: Raven) => (
-						<RavenCard key={raven.id} raven={raven} />
+						<RavenCard key={raven.id} raven={raven} onChange={handleRavenChanged} />
 					))}
 				</>
 			)}
