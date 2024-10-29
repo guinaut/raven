@@ -1,4 +1,5 @@
 'use client';
+import { useEffect, useState } from 'react';
 import { Card, Group, Button, Stack, ScrollArea, Text } from '@mantine/core';
 import { Flip } from '@gfazioli/mantine-flip';
 import useSWR from 'swr';
@@ -55,20 +56,20 @@ const RavenCardLearnings = (props: { raven: ExtendedRaven; controlState: RavenSt
 
 	/*
 
-						<Grid w={320} p="md">
-							{Object.keys(analysis.data).map((key) => {
-								return (
-									<Grid.Col maw={150} span={6} key={key} m={0} p={0}>
-										<Stack m={0} p={0} gap={0} justify="center" mt="md">
-											<DonutChart size={80} thickness={14} data={dataDonutConverter(analysis.data, key)} />
-											<Text size="sm" ta="center">
-												{key}
-											</Text>
-										</Stack>
-									</Grid.Col>
-								);
-							})}
-						</Grid>
+	<Grid w={320} p="md">
+		{Object.keys(analysis.data).map((key) => {
+			return (
+				<Grid.Col maw={150} span={6} key={key} m={0} p={0}>
+					<Stack m={0} p={0} gap={0} justify="center" mt="md">
+						<DonutChart size={80} thickness={14} data={dataDonutConverter(analysis.data, key)} />
+						<Text size="sm" ta="center">
+							{key}
+						</Text>
+					</Stack>
+				</Grid.Col>
+			);
+		})}
+	</Grid>
 	const dataDonutConverter = (data: any, finding: string) => {
 		const finding_data: string[] = data[finding];
 		const d_data: { name: string; value: number; color: string }[] = finding_data.map((d: string, index: number) => {
