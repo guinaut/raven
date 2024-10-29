@@ -1,7 +1,8 @@
 import '@mantine/core/styles.css';
+import '@gfazioli/mantine-flip/styles.css';
+import '@mantine/charts/styles.css';
 import React from 'react';
 import { MantineProvider } from '@mantine/core';
-
 import { theme } from './theme';
 
 export const metadata = {

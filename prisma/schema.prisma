@@ -23,6 +23,8 @@ model Raven {
   author          User?           @relation(fields: [authorId], references: [id])
   authorId        String?
   recipients      Recipient[]
+  total_messages  Int             @default(0)
+  analysis        Json?
   send_type       RecipientType   @default(PUBLIC)
   updatedAt       DateTime        @updatedAt @map(name: "updated_at")
   @@map(name: "ravens")

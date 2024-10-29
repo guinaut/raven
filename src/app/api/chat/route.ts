@@ -25,6 +25,9 @@ async function saveChat(msgs: ChatMessage[]) {
 
 export async function POST(req: Request) {
 	const { messages, recipient_id } = await req.json();
+	if (messages && messages.length > 50) {
+		return new Response('Message limit exceeded');
+	}
 	const coreMessages = convertToCoreMessages(messages);
 	const result = await streamText({
 		model: openai('gpt-4o-mini'),

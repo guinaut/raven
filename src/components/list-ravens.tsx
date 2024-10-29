@@ -42,13 +42,23 @@ const RavenList = () => {
 	const { ravens, isLoading } = useRavens();
 	const [viewRavens, setViewRavens] = useState<Raven[]>([]);
 
-	const options: string[] = ['READY', 'ACTIVE', 'CANCELED'];
-	const [filterBy, setFilterBy] = useState(options[1]);
+	const segmentValues: string[] = ['NESTING', 'FLYING', 'RESTING'];
+	const filterValues: string[] = ['READY', 'ACTIVE', 'CANCELED', 'COMPLETE'];
+	const [filterBy, setFilterBy] = useState(filterValues[0]); // READY, ACTIVE, CANCELED, COMPLETE
+	const [segmentItem, setSegmentItem] = useState(segmentValues[0]);
+
+	const handleFilterChange = (value: string) => {
+		const index: number = segmentValues.indexOf(value);
+		setFilterBy(filterValues[index]);
+		setSegmentItem(value);
+	};
 
 	const handleRavenChanged = (props: { raven: Raven }) => {
 		const { raven } = props;
 		if (raven) {
+			const index: number = filterValues.indexOf(raven.state);
 			setFilterBy(raven.state);
+			setSegmentItem(filterValues[index]);
 		}
 	};
 
@@ -58,8 +68,8 @@ const RavenList = () => {
 				setViewRavens(ravens.filter((raven: Raven) => raven.state === 'READY'));
 			} else if (filterBy === 'ACTIVE') {
 				setViewRavens(ravens.filter((raven: Raven) => raven.state === 'ACTIVE'));
-			} else if (filterBy === 'CANCELED') {
-				setViewRavens(ravens.filter((raven: Raven) => raven.state === 'CANCELED'));
+			} else if (filterBy === 'CANCELED' || filterBy === 'COMPLETE') {
+				setViewRavens(ravens.filter((raven: Raven) => raven.state === 'CANCELED' || raven.state === 'COMPLETE'));
 			}
 		}
 	}, [ravens, isLoading, filterBy]);
@@ -68,9 +78,9 @@ const RavenList = () => {
 		<Stack w={340}>
 			<SegmentedControl
 				fullWidth
-				value={filterBy}
-				onChange={setFilterBy}
-				data={options}
+				value={segmentItem}
+				onChange={handleFilterChange}
+				data={segmentValues}
 				size="xs"
 				transitionDuration={250}
 				transitionTimingFunction="linear"

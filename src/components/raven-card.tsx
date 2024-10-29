@@ -1,22 +1,26 @@
 // components/RavenList.tsx
 import NextImage from 'next/image';
 import { useState, useEffect, MouseEventHandler } from 'react';
-import { Card, Text, Group, Image, Badge, Button, Stack, Collapse, Tooltip, ActionIcon, Anchor, CopyButton } from '@mantine/core';
-import { MdPublic } from 'react-icons/md';
-import { BsPersonHeart } from 'react-icons/bs';
-import { useDisclosure } from '@mantine/hooks';
+import { Card, Text, Group, Image, Button, Stack, ScrollArea } from '@mantine/core';
+import { Flip } from '@gfazioli/mantine-flip';
+import { useResizeObserver } from '@mantine/hooks';
 import { Raven, Recipient } from '@prisma/client'; // Assuming you have the Prisma types available
-
 import ravenReadyImage from '../assets/raven-resting.png';
 import ravenLaunchImage from '../assets/raven-launching.png';
+import { RavenCardTitleBar } from './raven-card-titlebar';
+import { RavenCardLearnings } from './raven-learnings';
 
-interface RavenState {
+export interface RavenState {
 	status: string;
 	status_color: string;
 	image: typeof ravenReadyImage;
 	type: string;
 	action_text: string;
 	next_action: MouseEventHandler;
+}
+
+export interface ExtendedRaven extends Raven {
+	recipients?: Recipient[];
 }
 
 const saveRaven = async (raven: Raven) => {
@@ -40,20 +44,15 @@ const saveRaven = async (raven: Raven) => {
 	}
 };
 
-interface ExtendedRaven extends Raven {
-	recipients?: Recipient[];
-}
-
 const RavenCard = (props: { raven: ExtendedRaven; onChange: (props: { raven: Raven }) => void }) => {
-	const baseURL: string = 'http://localhost:3000'; // Change this to your actual base URL
+	const [ref, rect] = useResizeObserver();
+
 	const {
 		onChange = () => {
 			return null;
 		},
 	} = props;
 	const [raven, setRaven] = useState<ExtendedRaven>(props.raven);
-	const [shortlink, setShortLink] = useState<string | null>(null);
-	const [opened, { toggle }] = useDisclosure(false);
 	const [controlState, setControlState] = useState<RavenState>({
 		status: 'Loading',
 		status_color: 'gray.3',
@@ -67,11 +66,6 @@ const RavenCard = (props: { raven: ExtendedRaven; onChange: (props: { raven: Rav
 
 	useEffect(() => {
 		if (raven) {
-			if (raven.send_type.toUpperCase() === 'PUBLIC') {
-				if (raven.recipients && raven.recipients.length > 0) {
-					setShortLink(raven.recipients[0].short_link);
-				}
-			}
 			if (raven.state === 'READY') {
 				setControlState({
 					status: 'Ready',
@@ -129,98 +123,40 @@ const RavenCard = (props: { raven: ExtendedRaven; onChange: (props: { raven: Rav
 	}, [raven]);
 
 	return (
-		<Card shadow="sm" padding="lg" radius="md" withBorder w={340}>
-			<Card.Section>
-				<Image component={NextImage} src={controlState.image} height={100} alt={controlState.status} />
-			</Card.Section>
-			<Card.Section>
-				<Group m="sm" p={0} gap={5} grow preventGrowOverflow>
-					<Group grow>
-						<Text fw={500}>{raven.topic}</Text>
-					</Group>
-					{controlState.type === 'PRIVATE' ? (
-						<>
-							<Tooltip label="Private Raven">
-								<Badge
-									color="yellow"
-									pt={0}
-									maw={50}
-									m={0}
-									p={0}
-									leftSection={
-										<ActionIcon size="md" variant="transparent" color="white" aria-label="Private Raven" m={0} p={0} onClick={toggle}>
-											<BsPersonHeart style={{ width: '70%', height: '70%' }} stroke="1.5" />
-										</ActionIcon>
-									}
-								>
-									<Text fw={900} size="sm" m={0} p={0}>
-										{raven.recipients ? raven.recipients.length : 0}
-									</Text>
-								</Badge>
-							</Tooltip>
-						</>
-					) : (
-						<>
-							<Badge color="yellow" pt={0} maw={30} m={0} p={0}>
-								<CopyButton value={`${baseURL}/raven/${shortlink}`} timeout={2000}>
-									{({ copied, copy }) => (
-										<Tooltip label={copied ? 'Copied' : 'Copy Raven Link'} withArrow position="right">
-											<ActionIcon size="md" variant="transparent" color="white" aria-label="Public Raven" onClick={copy}>
-												<MdPublic
-													style={{
-														width: '70%',
-														height: '70%',
-													}}
-													stroke="1.5"
-												/>
-											</ActionIcon>
-										</Tooltip>
-									)}
-								</CopyButton>
-							</Badge>
-						</>
-					)}
-					<Badge maw={65} pt={2} color={controlState.status_color}>
-						{controlState.status}
-					</Badge>
-				</Group>
-				{controlState.type === 'PRIVATE' && raven && raven.recipients && raven.recipients.length > 0 && (
-					<Collapse in={opened}>
-						<Stack gap="xs" p={0} m="sm">
-							{raven.recipients &&
-								raven.recipients.map((r) => (
-									<Group key={`recipient-${r.id}`}>
-										<Text size="xs" ta="right">
-											{(r.private_email as string).split('@')[0]}
-										</Text>
-										<Text size="xs" ta="left" fw={900}>
-											<Anchor href={`${baseURL}/raven/${r.short_link}`} target="_raven" underline="hover">
-												{`https://ravenchat.io/raven/${r.short_link}`}
-											</Anchor>
-										</Text>
-									</Group>
-								))}
+		<Group>
+			<Flip w={340} h={Math.round(rect.height) + 50}>
+				<Card shadow="sm" padding="lg" radius="md" withBorder w={340} ref={ref}>
+					<Card.Section>
+						<Image component={NextImage} src={controlState.image} height={100} alt={controlState.status} />
+					</Card.Section>
+					<RavenCardTitleBar raven={raven} controlState={controlState} />
+					<Card.Section>
+						<Stack justify="space-between" m="sm">
+							<ScrollArea.Autosize mah={200} mx="auto">
+								<Text size="sm" c="dimmed">
+									{raven.directive}
+								</Text>
+							</ScrollArea.Autosize>
 						</Stack>
-					</Collapse>
-				)}
-				{shortlink && (
-					<Stack justify="space-between" m="sm">
-						<Text size="sm" c="dimmed">
-							{raven.directive}
-						</Text>
-					</Stack>
-				)}
-				<Stack justify="space-between" m="sm">
-					<Text size="sm" c="dimmed">
-						{raven.directive}
-					</Text>
-				</Stack>
-
-				<Button fullWidth mt="md" radius="md" onClick={controlState.next_action}>
-					{controlState.action_text}
-				</Button>
-			</Card.Section>
-		</Card>
+					</Card.Section>
+					<Card.Section>
+						<Group grow>
+							<Button fullWidth mt="md" radius="md" onClick={controlState.next_action}>
+								{controlState.action_text}
+							</Button>
+							{raven.state !== 'READY' && (
+								<Flip.Target>
+									<Button fullWidth color="yellow" mt="md" radius="md">
+										Learnings
+									</Button>
+								</Flip.Target>
+							)}
+						</Group>
+					</Card.Section>
+				</Card>
+				<RavenCardLearnings raven={raven} controlState={controlState} cardHeight={Math.round(rect.height) + 50} />
+			</Flip>
+		</Group>
 	);
 };
 
