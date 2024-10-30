@@ -1,7 +1,8 @@
 'use server';
 
 import { auth, clerkClient } from '@clerk/nextjs/server';
-import { addUser } from '../api/v1/account/onboarding/route';
+import prisma from '../../lib/prisma';
+
 interface UserData {
 	name: string | null;
 	email: string;
@@ -19,7 +20,13 @@ export const completeOnboarding = async (userData: UserData) => {
 		if (!name || !email) {
 			return { message: 'Invalid passed user' };
 		}
-		const user = await addUser({ name, email });
+		const user = await prisma.user.create({
+			data: {
+				name: name,
+				email: email,
+			},
+		});
+
 		if (user) {
 			const client = await clerkClient();
 			await client.users.updateUser(userId, {
