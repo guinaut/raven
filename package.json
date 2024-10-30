@@ -13,6 +13,8 @@
 	},
 	"dependencies": {
 		"@ai-sdk/openai": "^0.0.68",
+		"@clerk/nextjs": "^6.0.2",
+		"@clerk/themes": "^2.1.39",
 		"@gfazioli/mantine-flip": "^1.0.22",
 		"@mantine/charts": "^7.13.4",
 		"@mantine/core": "^7.13.3",
