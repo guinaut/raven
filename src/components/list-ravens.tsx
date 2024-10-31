@@ -3,7 +3,7 @@ import useSWR from 'swr';
 import { Stack, Loader, Center, SegmentedControl } from '@mantine/core';
 import { Raven } from '@prisma/client'; // Assuming you have the Prisma types available
 import { RavenCard } from './raven-card';
-
+import { RavenCardEmptyNesting, RavenCardEmptyResting } from './raven-card-empty';
 /*
   READY
   ACTIVE
@@ -92,9 +92,15 @@ const RavenList = () => {
 				</Center>
 			) : (
 				<>
-					{viewRavens.map((raven: Raven) => (
-						<RavenCard key={raven.id} raven={raven} onChange={handleRavenChanged} />
-					))}
+					{viewRavens.length > 0 ? (
+						<>
+							{viewRavens.map((raven: Raven) => (
+								<RavenCard key={raven.id} raven={raven} onChange={handleRavenChanged} />
+							))}
+						</>
+					) : (
+						<>{filterBy === 'READY' ? <RavenCardEmptyNesting /> : <RavenCardEmptyResting />}</>
+					)}
 				</>
 			)}
 		</Stack>
