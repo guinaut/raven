@@ -43,10 +43,12 @@ const getRecipientByShortLink = async (props: { recipients: Recipient[]; public_
 			private_email: email && email.length > 0 ? email : null,
 			contactId: template_recipient.contactId,
 			messages: {
-				create: {
-					role: msg.role,
-					content: msg.content as Prisma.InputJsonValue,
-				},
+				create: [
+					{
+						role: msg.role,
+						content: msg.content as Prisma.InputJsonValue,
+					},
+				],
 			},
 		},
 		include: {
@@ -83,13 +85,11 @@ export async function POST(req: Request, { params }: { params: { short_link: str
 		if ((!email || email.length === 0) && public_key && public_key.length > 0 && recipients.length > 0) {
 			const public_key_recipient = recipients.find((recipient) => recipient.public_key === public_key);
 			if (public_key_recipient) {
-				console.log('Found Common Public Case');
 				return NextResponse.json(public_key_recipient);
 			}
 		} else if (email && email.length > 0 && public_key && public_key.length > 0 && recipients.length > 0) {
 			const email_key_recipient = recipients.find((recipient) => recipient.public_key === public_key && recipient.private_email === email);
 			if (email_key_recipient) {
-				console.log('Found Common Email Case');
 				return NextResponse.json(email_key_recipient);
 			}
 		}
@@ -126,7 +126,6 @@ export async function POST(req: Request, { params }: { params: { short_link: str
 						return NextResponse.json(send_email_recipient);
 					} else {
 						// call standard logic for public_key
-						console.log('Recipient found by email');
 						return NextResponse.json(
 							await getRecipientByShortLink({
 								recipients: recipients,
@@ -138,7 +137,6 @@ export async function POST(req: Request, { params }: { params: { short_link: str
 				}
 			} else if (recipients[0].raven.send_type === 'PUBLIC') {
 				// call standard logic for public_key
-				console.log('Recipient found by PUBLIC');
 				return NextResponse.json(
 					await getRecipientByShortLink({
 						recipients: recipients,
@@ -148,10 +146,9 @@ export async function POST(req: Request, { params }: { params: { short_link: str
 				);
 			}
 		}
-		console.log('Error with the short_link', short_link);
 		return NextResponse.error();
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	} catch (error) {
-		console.error('Error processing POST request:', error);
 		return NextResponse.error();
 	}
 }

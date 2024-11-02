@@ -1,6 +1,6 @@
 'use client';
 
-import { ActionIcon, Box, Flex, Center, Text, Anchor } from '@mantine/core';
+import { ActionIcon, Box, Flex, Center, Text, Anchor, Group } from '@mantine/core';
 //import { IoIosArrowBack,  } from "react-icons/io";
 import { /*GiNestBirds,*/ GiFruitTree, GiBirdHouse } from 'react-icons/gi';
 import { useRouter } from 'next/navigation';
@@ -54,20 +54,22 @@ export function AerieFooter(props: React.PropsWithChildren) {
 	const { signOut } = useClerk();
 
 	return (
-		<Flex mt="sm" w="100%" {...props}>
-			<Flex w="100%">
-				<Center w="100%">
-					<Text size="sm" fw={900} variant="gradient">
-						<Anchor onClick={() => signOut({ redirectUrl: '/' })}>Sign out</Anchor>
-					</Text>
-					<Text size="sm" fw={900} variant="gradient" ml={20} mr={20}>
-						{`•`}
-					</Text>
-					<Text size="sm" fw={900} variant="gradient">
-						{`Ravenchat.io 2024`}
-					</Text>
-				</Center>
-			</Flex>
-		</Flex>
+		<Group grow>
+			<Center>
+				<Flex mt="sm" w={{ xs: 340, sm: 340, md: 400, lg: 500, xl: 500 }} {...props}>
+					<Center w="100%">
+						<Text size="sm" fw={900} variant="gradient">
+							<Anchor onClick={() => signOut({ redirectUrl: '/' })}>Sign out</Anchor>
+						</Text>
+						<Text size="sm" fw={900} variant="gradient" ml={20} mr={20}>
+							{`•`}
+						</Text>
+						<Text size="sm" fw={900} variant="gradient">
+							{`Ravenchat.io 2024`}
+						</Text>
+					</Center>
+				</Flex>
+			</Center>
+		</Group>
 	);
 }

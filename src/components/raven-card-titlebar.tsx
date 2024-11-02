@@ -85,28 +85,49 @@ const RavenCardTitleBar = (props: { raven: ExtendedRaven; controlState: RavenSta
 					</>
 				) : (
 					<>
-						<CopyButton value={`${baseURL}/raven/${shortlink}`} timeout={2000}>
-							{({ copied }) => (
-								<Tooltip label={copied ? 'Copied' : 'Copy Raven Link'} withArrow position="right">
-									<Badge
-										color="yellow"
-										pt={0}
-										maw={50}
-										m={0}
-										p={0}
-										leftSection={
-											<ActionIcon size="md" variant="transparent" color="white" aria-label="Public Raven" m={0} p={0} onClick={toggle}>
-												<MdPublic style={{ width: '70%', height: '70%' }} stroke="1.5" />
-											</ActionIcon>
-										}
-									>
-										<Text fw={900} size="sm" m={0} p={0}>
-											{raven.recipients ? raven.recipients.length : 0}
-										</Text>
-									</Badge>
-								</Tooltip>
-							)}
-						</CopyButton>
+						{controlState.status != 'Ready' ? (
+							<>
+								<CopyButton value={`${baseURL}/raven/${shortlink}`} timeout={2000}>
+									{({ copied, copy }) => (
+										<Tooltip label={copied ? 'Copied' : 'Copy Raven Link'} withArrow position="right">
+											<Badge
+												color="yellow"
+												pt={0}
+												maw={50}
+												m={0}
+												p={0}
+												onClick={copy}
+												leftSection={
+													<ActionIcon size="md" variant="transparent" color="white" aria-label="Public Raven" m={0} p={0}>
+														<MdPublic style={{ width: '70%', height: '70%' }} stroke="1.5" />
+													</ActionIcon>
+												}
+											>
+												<Text fw={900} size="sm" m={0} p={0}>
+													{raven.recipients ? raven.recipients.length - 1 : 0}
+												</Text>
+											</Badge>
+										</Tooltip>
+									)}
+								</CopyButton>
+							</>
+						) : (
+							<>
+								<Badge
+									color="yellow"
+									pt={0}
+									pl={4}
+									maw={22}
+									m={0}
+									p={0}
+									leftSection={
+										<ActionIcon size="md" variant="transparent" color="white" aria-label="Public Raven" m={0} p={0} onClick={toggle}>
+											<MdPublic style={{ width: '70%', height: '70%' }} stroke="1.5" />
+										</ActionIcon>
+									}
+								></Badge>
+							</>
+						)}
 					</>
 				)}
 

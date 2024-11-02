@@ -170,25 +170,6 @@ export async function POST(req: NextRequest) {
 			});
 			return final_raven;
 		});
-
-		/*const raven_recipients = raven.recipients;
-		if (recipients) {
-			if (raven.state === 'ACTIVE' && raven.send_type === RecipientType.PRIVATE) {
-				const emailData: RavenEmailData[] = [];
-				for (let i = 0; i < raven_recipients.length; i++) {
-					const r = raven_recipients[i];
-					if (!r.private_email || !r.short_link) {
-						continue;
-					}
-					const email = r.private_email ? r.private_email : '';
-					const name: string | null = (r as ExtendedRecipient).contact?.name ?? '';
-					const url = `https://${process.env.NEXT_PUBLIC_VERCEL_URL}/raven/${r.short_link}`;
-					emailData.push({ email, name, url });
-				}
-				await sendRavenEmails(emailData);
-			}
-		}
-			*/
 		return NextResponse.json(raven);
 	} catch (error) {
 		console.log('Error updating raven:', error);

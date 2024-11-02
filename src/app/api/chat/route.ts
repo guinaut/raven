@@ -33,7 +33,6 @@ export async function POST(req: Request) {
 		model: openai('gpt-4o-mini'),
 		messages: coreMessages,
 		onFinish: async ({ text }) => {
-			console.log('onFinish', text);
 			const last_msg = coreMessages[coreMessages.length - 1];
 			const persistMessages: ChatMessage[] = [
 				{

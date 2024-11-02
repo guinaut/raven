@@ -177,7 +177,7 @@ const EmailSelector = (props: {
 				</PillsInput>
 			</Combobox.DropdownTarget>
 
-			<Combobox.Dropdown>
+			<Combobox.Dropdown bg="yellow.9">
 				<Combobox.Options>{options.length > 0 ? options : <Combobox.Empty>Nothing found...</Combobox.Empty>}</Combobox.Options>
 			</Combobox.Dropdown>
 		</Combobox>
