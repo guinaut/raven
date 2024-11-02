@@ -1,4 +1,4 @@
-import prisma from '../../../../../../lib/prisma';
+import prisma from '@/lib/prisma';
 import { NextRequest, NextResponse } from 'next/server';
 import { getAuth } from '@clerk/nextjs/server';
 
@@ -30,8 +30,8 @@ export async function GET(req: NextRequest) {
 			},
 		});
 		return NextResponse.json(ravens);
+		//eslint-disable-next-line
 	} catch (error) {
-		console.error('Error fetching ravens:', error);
 		return NextResponse.error();
 	}
 }
