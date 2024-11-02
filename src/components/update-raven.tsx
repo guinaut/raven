@@ -1,26 +1,33 @@
 'use client';
 
 //import { useEffect, useState } from "react";
-import { useUser } from '@clerk/nextjs';
 import { Group, Stack, Text, TextInput, Textarea, Button, Card, Image } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import { Raven } from '@prisma/client';
+import { Raven, Recipient } from '@prisma/client';
 import NextImage from 'next/image';
-import ravenLaunchImage from '../assets/raven-friendly-wideview.png';
-import { useRouter } from 'next/navigation';
+import ravenLaunchImage from '../assets/beak-to-beak.png';
 
 import { EmailSelector } from './email-selector';
+import { useEffect } from 'react';
 
-const createRavenFetch = async (props: { topic: string; directive: string; recipients: string[] }) => {
-	const { topic, directive, recipients } = props;
+import { useRouter } from 'next/navigation';
+
+interface ExtendedRaven extends Raven {
+	recipients: Recipient[];
+}
+
+const updateRavenFetch = async (props: { raven_id: string; topic: string; directive: string; recipients: string[] }) => {
+	const { raven_id, topic, directive, recipients } = props;
 	try {
 		const res = await fetch('/api/v1/account/raven', {
 			headers: new Headers({
 				'Content-Type': 'application/json',
 			}),
 			credentials: 'same-origin',
-			method: 'PUT',
+			method: 'POST',
 			body: JSON.stringify({
+				id: raven_id,
+				state: 'READY',
 				topic,
 				directive,
 				recipients,
@@ -33,14 +40,15 @@ const createRavenFetch = async (props: { topic: string; directive: string; recip
 	}
 };
 
-const CreateRaven = () => {
+const UpdateRaven = (props: { raven: ExtendedRaven }) => {
 	const router = useRouter();
-	const { user } = useUser();
+
+	const { raven } = props;
 	const directiveForm = useForm({
 		initialValues: {
 			topic: '',
 			directive: '',
-			recipients: [],
+			recipients: [] as string[],
 		},
 
 		validate: {
@@ -50,11 +58,11 @@ const CreateRaven = () => {
 		},
 	});
 
-	const saveRaven = () => {
+	const handleUpdateRaven = () => {
 		const { topic, directive, recipients } = directiveForm.values;
 		const { hasErrors = true } = directiveForm.validate();
 		if (!hasErrors) {
-			createRavenFetch({ topic, directive, recipients }).then((data: Raven) => {
+			updateRavenFetch({ raven_id: raven.id, topic, directive, recipients }).then((data: Raven) => {
 				if (data) {
 					directiveForm.reset();
 					router.push('/aerie/list');
@@ -62,6 +70,19 @@ const CreateRaven = () => {
 			});
 		}
 	};
+
+	useEffect(() => {
+		if (raven) {
+			const emails = raven.recipients.map((recipient) => recipient.private_email);
+			const full_emails = emails.filter((email) => email !== null);
+			directiveForm.setValues({
+				topic: raven.topic,
+				directive: raven.directive,
+				recipients: full_emails,
+			});
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [raven]);
 
 	return (
 		<Card shadow="sm" padding="lg" radius="md" withBorder w={{ xs: 340, sm: 340, md: 400, lg: 500, xl: 500 }}>
@@ -88,13 +109,13 @@ const CreateRaven = () => {
 							following:
 							<br /> {`1. What is your favorite {{color}}?`}
 							<br /> {`2. What is your favorite {{animal}}?`}
-							<br /> {`${user?.id}`}
+							<br />
 							<br />
 							Fair warning. I&apos;m a Raven and we do things our way. Sqwak!
 						</Text>
 						<Group justify="center" mt="md">
-							<Button onClick={() => saveRaven()} color="yellow">
-								Add to the Aerie
+							<Button onClick={() => handleUpdateRaven()} color="yellow">
+								Those are my new instructions.
 							</Button>
 						</Group>
 					</Stack>
@@ -104,4 +125,4 @@ const CreateRaven = () => {
 	);
 };
 
-export { CreateRaven };
+export { UpdateRaven };

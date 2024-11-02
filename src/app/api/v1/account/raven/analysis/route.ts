@@ -2,7 +2,8 @@ import { openai } from '@ai-sdk/openai';
 import { generateObject } from 'ai';
 import prisma from '../../../../../../lib/prisma';
 import { Message, Recipient } from '@prisma/client';
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
+import { getAuth } from '@clerk/nextjs/server';
 // POST /api/post
 // Required fields in body: topic
 // Optional fields in body: directive
@@ -14,14 +15,29 @@ interface RavenMessage extends Message {
 	};
 }
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
 	try {
+		// Get the authentication data from Clerk
+		const { userId } = getAuth(req);
+
+		// Check if the user is authenticated
+		if (!userId) {
+			return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+		}
+
 		const { raven_id } = await req.json();
 		if (!raven_id) {
 			return NextResponse.error();
 		}
 		const raven = await prisma.raven.findFirst({
-			where: { id: raven_id },
+			where: {
+				id: raven_id,
+				author: {
+					is: {
+						external_id: userId,
+					},
+				},
+			},
 			include: {
 				recipients: {
 					include: {
@@ -80,7 +96,6 @@ PLAN:
 					prompt: msg_list_content,
 				});
 				if (object) {
-					console.log('Running new analysis');
 					await prisma.raven.update({
 						data: {
 							total_messages,
@@ -90,7 +105,6 @@ PLAN:
 							id: raven_id,
 						},
 					});
-					console.log(JSON.stringify(object, null, 2));
 					return NextResponse.json(object);
 				}
 			} else {

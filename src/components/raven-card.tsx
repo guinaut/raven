@@ -7,6 +7,7 @@ import { useResizeObserver } from '@mantine/hooks';
 import { Raven, Recipient } from '@prisma/client'; // Assuming you have the Prisma types available
 import ravenReadyImage from '../assets/raven-resting.png';
 import ravenLaunchImage from '../assets/raven-launching.png';
+import ravenRetiredImage from '../assets/summer-noraven.png';
 import { RavenCardTitleBar } from './raven-card-titlebar';
 import { RavenCardLearnings } from './raven-learnings';
 
@@ -23,17 +24,37 @@ export interface ExtendedRaven extends Raven {
 	recipients?: Recipient[];
 }
 
-const saveRaven = async (raven: Raven) => {
-	const { id, state } = raven;
+const copyRaven = async (raven: ExtendedRaven) => {
+	const { id } = raven;
 	try {
-		const res = await fetch('/api/v1/raven', {
+		const res = await fetch('/api/v1/account/raven/copy', {
 			headers: new Headers({
 				'Content-Type': 'application/json',
 			}),
 			credentials: 'same-origin',
 			method: 'POST',
 			body: JSON.stringify({
-				id,
+				ravenId: id,
+			}),
+		});
+		const data = await res.json();
+		return data;
+	} catch (error) {
+		console.error('Error fetching ravens:', error);
+	}
+};
+
+const saveRaven = async (raven: ExtendedRaven) => {
+	const { id, state } = raven;
+	try {
+		console.log('new state', state);
+		const res = await fetch(`/api/v1/account/raven/${id}`, {
+			headers: new Headers({
+				'Content-Type': 'application/json',
+			}),
+			credentials: 'same-origin',
+			method: 'POST',
+			body: JSON.stringify({
 				state,
 			}),
 		});
@@ -44,11 +65,20 @@ const saveRaven = async (raven: Raven) => {
 	}
 };
 
-const RavenCard = (props: { raven: ExtendedRaven; onChange: (props: { raven: Raven }) => void }) => {
+interface RavenCardProps {
+	raven: ExtendedRaven;
+	onChange: (props: { raven: Raven }) => void;
+	onRefreshRavens: (props: { raven: Raven }) => void;
+}
+
+const RavenCard = (props: RavenCardProps) => {
 	const [ref, rect] = useResizeObserver();
 
 	const {
 		onChange = () => {
+			return null;
+		},
+		onRefreshRavens = () => {
 			return null;
 		},
 	} = props;
@@ -106,12 +136,27 @@ const RavenCard = (props: { raven: ExtendedRaven; onChange: (props: { raven: Rav
 					type: raven.send_type,
 					status_color: 'red',
 					image: ravenLaunchImage,
-					action_text: 'Ready Raven',
+					action_text: 'Retire Raven',
 					next_action: () => {
-						raven.state = 'READY';
+						raven.state = 'COMPLETE';
 						saveRaven(raven).then((data) => {
 							setRaven(data);
 							onChange({
+								raven: data as Raven,
+							});
+						});
+					},
+				});
+			} else if (raven.state === 'COMPLETE') {
+				setControlState({
+					status: 'Finito',
+					type: raven.send_type,
+					status_color: 'blue',
+					image: ravenRetiredImage,
+					action_text: 'Send Again',
+					next_action: () => {
+						copyRaven(raven).then((data) => {
+							onRefreshRavens({
 								raven: data as Raven,
 							});
 						});
@@ -134,7 +179,7 @@ const RavenCard = (props: { raven: ExtendedRaven; onChange: (props: { raven: Rav
 						<Stack justify="space-between" m="sm">
 							<ScrollArea.Autosize mah={200} mx="auto">
 								<Text size="sm" c="dimmed">
-									{raven.directive}
+									{raven?.directive}
 								</Text>
 							</ScrollArea.Autosize>
 						</Stack>

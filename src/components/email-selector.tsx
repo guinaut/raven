@@ -5,9 +5,9 @@ import { Group, PillsInput, Pill, Combobox, CheckIcon, useCombobox } from '@mant
 import useSWR from 'swr';
 import { Contact } from '@prisma/client';
 
-function useContacts(url: string, userId: string | undefined) {
-	const fetcher = async (url: string, userId: string | undefined) => {
-		if (!userId || userId.length === 0) {
+function useContacts(url: string, author_id: string | undefined) {
+	const fetcher = async (url: string, author_id: string | undefined) => {
+		if (!author_id || author_id.length === 0) {
 			return [];
 		}
 		return fetch(url, {
@@ -17,7 +17,7 @@ function useContacts(url: string, userId: string | undefined) {
 			credentials: 'same-origin',
 			method: 'POST',
 			body: JSON.stringify({
-				userId,
+				author_id,
 			}),
 		})
 			.then((res) => res.json())
@@ -29,7 +29,7 @@ function useContacts(url: string, userId: string | undefined) {
 			});
 	};
 
-	const { data, error, isLoading } = useSWR([`/api/v1/account/contact/list`, userId], ([url, userId]) => fetcher(url, userId));
+	const { data, error, isLoading } = useSWR([`/api/v1/account/contact/list`, author_id], ([url, author_id]) => fetcher(url, author_id));
 
 	return {
 		contacts: data,
@@ -46,8 +46,7 @@ const EmailSelector = (props: {
 	onFocus?: (event: React.FocusEvent<HTMLInputElement>) => void;
 	value?: string[];
 }) => {
-	const { onChange, error } = props;
-
+	const { onChange, error, value } = props;
 	const combobox = useCombobox({
 		onDropdownClose: () => combobox.resetSelectedOption(),
 		onDropdownOpen: () => combobox.updateSelectedOptionIndex('active'),
@@ -113,10 +112,14 @@ const EmailSelector = (props: {
 	}, [contacts, isLoading, isError]);
 
 	useEffect(() => {
+		if (value && value.length > 0) {
+			setPills(value);
+		}
+	}, [value]);
+	useEffect(() => {
 		setUserId('cm2qbp50s0000s98b9jrf2zah');
 	}, []);
-
-	const values = pills.map((item) => (
+	const render_pills = pills.map((item) => (
 		<Pill key={item} withRemoveButton onRemove={() => handleValueRemove(item)}>
 			{item}
 		</Pill>
@@ -148,8 +151,7 @@ const EmailSelector = (props: {
 			<Combobox.DropdownTarget>
 				<PillsInput error={error} label="Who is this for?" onClick={() => combobox.openDropdown()}>
 					<Pill.Group>
-						{values}
-
+						{render_pills}
 						<Combobox.EventsTarget>
 							<PillsInput.Field
 								onFocus={() => combobox.openDropdown()}

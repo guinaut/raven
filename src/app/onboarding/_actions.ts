@@ -22,6 +22,7 @@ export const completeOnboarding = async (userData: UserData) => {
 		}
 		const user = await prisma.user.create({
 			data: {
+				external_id: userId,
 				name: name,
 				email: email,
 			},

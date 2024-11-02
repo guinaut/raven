@@ -1,11 +1,16 @@
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { Card, Text, Group, Badge, Stack, Collapse, Tooltip, ActionIcon, Anchor, CopyButton, Modal } from '@mantine/core';
 import { MdPublic } from 'react-icons/md';
-import { BsPersonHeart } from 'react-icons/bs';
+import { BsPersonHeart, BsGear } from 'react-icons/bs';
 import { useDisclosure, useMediaQuery } from '@mantine/hooks';
-import { Raven } from '@prisma/client'; // Assuming you have the Prisma types available
+import { Raven, Recipient, Contact } from '@prisma/client'; // Assuming you have the Prisma types available
 import Markdown from 'react-markdown';
 import { RavenState, ExtendedRaven } from './raven-card';
+
+interface ExtendedRecipient extends Recipient {
+	contact: Contact;
+}
 
 const RavenStateBadge = (props: { controlState: RavenState; raven: Raven }) => {
 	const [opened, { open, close }] = useDisclosure(false);
@@ -31,10 +36,15 @@ const RavenStateBadge = (props: { controlState: RavenState; raven: Raven }) => {
 };
 
 const RavenCardTitleBar = (props: { raven: ExtendedRaven; controlState: RavenState }) => {
-	const baseURL: string = 'http://localhost:3000'; // Change this to your actual base URL
+	const baseURL: string = `http://${process.env.NEXT_PUBLIC_VERCEL_URL}`; // Change this to your actual base URL
+	const router = useRouter();
 	const { raven, controlState } = props;
 	const [shortlink, setShortLink] = useState<string | null>(null);
 	const [opened, { toggle }] = useDisclosure(false);
+
+	const handleEditRaven = () => {
+		router.push(`/aerie/update/${raven.id}`);
+	};
 
 	useEffect(() => {
 		if (raven) {
@@ -101,6 +111,22 @@ const RavenCardTitleBar = (props: { raven: ExtendedRaven; controlState: RavenSta
 				)}
 
 				<RavenStateBadge controlState={controlState} raven={raven} />
+
+				{controlState.status === 'Ready' && (
+					<Badge
+						color="gray.5"
+						pt={0}
+						maw={22}
+						m={0}
+						p={0}
+						pl={5}
+						leftSection={
+							<ActionIcon size="md" variant="transparent" color="white.5" aria-label="Edit Raven" m={0} p={0} onClick={handleEditRaven}>
+								<BsGear style={{ width: '70%', height: '70%' }} stroke="1.5" />
+							</ActionIcon>
+						}
+					></Badge>
+				)}
 			</Group>
 			{controlState.type === 'PRIVATE' && raven && raven.recipients && raven.recipients.length > 0 && (
 				<Collapse in={opened}>
@@ -109,7 +135,7 @@ const RavenCardTitleBar = (props: { raven: ExtendedRaven; controlState: RavenSta
 							raven.recipients.map((r) => (
 								<Group key={`recipient-${r.id}`}>
 									<Text size="xs" ta="right">
-										{(r.private_email as string).split('@')[0]}
+										{(r as ExtendedRecipient).contact ? (r as ExtendedRecipient).contact.name : (r.private_email as string).split('@')[0]}
 									</Text>
 									<Text size="xs" ta="left" fw={900}>
 										<Anchor href={`${baseURL}/raven/${r.short_link}`} target="_raven" underline="hover">

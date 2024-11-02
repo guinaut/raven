@@ -49,7 +49,7 @@ export default function OnboardingComponent() {
 							<Stack justify="space-between" m="sm" h={150}>
 								<ScrollArea.Autosize mah={150} mx="auto">
 									<Text size="sm" c="dimmed">
-										{`Give you Raven some background about yourself.`}
+										{`Train your Raven (coming soon).`}
 									</Text>
 									<List
 										spacing="md"

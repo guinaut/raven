@@ -1,8 +1,10 @@
 import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
 import { NextRequest, NextResponse } from 'next/server';
 
+const isAPIRoute = createRouteMatcher(['/api(.*)']);
 const isRavenChat = createRouteMatcher(['/raven(.*)']);
 const isOnboardingRoute = createRouteMatcher(['/onboarding']);
+const isUnsubscribe = createRouteMatcher(['/unsubscribe']);
 const isPublicRoute = createRouteMatcher(['/sign-in(.*)', '/sign-up(.*)']);
 
 export default clerkMiddleware(async (auth, req: NextRequest) => {
@@ -14,7 +16,16 @@ export default clerkMiddleware(async (auth, req: NextRequest) => {
 	}
 
 	// For users visiting /onboarding, don't try to redirect
+	if (isUnsubscribe(req)) {
+		return NextResponse.next();
+	}
+
+	// For users visiting /onboarding, don't try to redirect
 	if (userId && isOnboardingRoute(req)) {
+		return NextResponse.next();
+	}
+	// APIs need to self secure
+	if (isAPIRoute(req)) {
 		return NextResponse.next();
 	}
 
@@ -40,10 +51,12 @@ export const config = {
 	matcher: [
 		// Skip Next.js internals and all static files, unless found in search params
 		'/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)',
-		// Always run for API routes
-		'/(api|trpc)(.*)',
 	],
 };
+/*,
+		// Always run for API routes
+		'/(api|trpc)/v1(.*)',
+		*/
 
 /*
 import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';

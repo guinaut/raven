@@ -38,6 +38,7 @@ model Recipient {
   short_link      String?         // set when raven is sent. further protection to prevent multiple sends
   public_key      String?         // this is either a uuid or an email address of the contact
   private_email   String?         // this is the email address of the contact
+  contact         Contact?        @relation(fields: [contactId], references: [id])
   contactId       String?
   messages        Message[]
   createdAt       DateTime        @default(now()) @map(name: "created_at")
@@ -49,7 +50,7 @@ model Message {
   id              String          @default(cuid()) @id
   role            String
   content         Json
-  recipient       Recipient?      @relation(fields: [recipientId], references: [id])
+  recipient       Recipient?      @relation(fields: [recipientId], references: [id], onDelete: Cascade)
   recipientId     String?
   createdAt       DateTime        @default(now()) @map(name: "created_at")
   @@map(name: "messages")
@@ -57,6 +58,7 @@ model Message {
 
 model User {
   id              String          @default(cuid()) @id
+  external_id     String          @unique
   name            String?
   email           String?         @unique
   createdAt       DateTime        @default(now()) @map(name: "created_at")
@@ -70,8 +72,10 @@ model Contact {
   id              String          @default(cuid()) @id
   name            String?
   email           String?         @unique
+  unsubscribed    Boolean         @default(false)
   user            User            @relation(fields: [userId], references: [id])
   userId          String
+  recipients      Recipient[]
   createdAt       DateTime        @default(now()) @map(name: "created_at")
   updatedAt       DateTime        @updatedAt @map(name: "updated_at")
   @@map(name: "contacts")

@@ -1,7 +1,10 @@
-import { ActionIcon, Box, Flex, Center, Text } from '@mantine/core';
+'use client';
+
+import { ActionIcon, Box, Flex, Center, Text, Anchor } from '@mantine/core';
 //import { IoIosArrowBack,  } from "react-icons/io";
 import { /*GiNestBirds,*/ GiFruitTree, GiBirdHouse } from 'react-icons/gi';
 import { useRouter } from 'next/navigation';
+import { useClerk } from '@clerk/nextjs';
 
 export function ReturnHome(props: { miw: number }) {
 	const router = useRouter();
@@ -36,13 +39,35 @@ export function AerieHeader(props: React.PropsWithChildren) {
 		<Flex mt="sm" w="100%" {...props}>
 			<ReturnHome miw={40} />
 			<Flex w="100%">
-				<Center w="100%" mr={40}>
+				<Center w="100%">
 					<Text size="xl" fw={900} variant="gradient">
 						RavenChat
 					</Text>
 				</Center>
 			</Flex>
 			<GoToAerie miw={40} />
+		</Flex>
+	);
+}
+
+export function AerieFooter(props: React.PropsWithChildren) {
+	const { signOut } = useClerk();
+
+	return (
+		<Flex mt="sm" w="100%" {...props}>
+			<Flex w="100%">
+				<Center w="100%">
+					<Text size="sm" fw={900} variant="gradient">
+						<Anchor onClick={() => signOut({ redirectUrl: '/' })}>Sign out</Anchor>
+					</Text>
+					<Text size="sm" fw={900} variant="gradient" ml={20} mr={20}>
+						{`•`}
+					</Text>
+					<Text size="sm" fw={900} variant="gradient">
+						{`Ravenchat.io 2024`}
+					</Text>
+				</Center>
+			</Flex>
 		</Flex>
 	);
 }

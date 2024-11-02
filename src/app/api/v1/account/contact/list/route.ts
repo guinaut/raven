@@ -1,15 +1,24 @@
 import prisma from '../../../../../../lib/prisma';
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
+import { getAuth } from '@clerk/nextjs/server';
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
 	try {
-		const { userId } = await req.json();
+		// Get the authentication data from Clerk
+		const { userId } = getAuth(req);
+
+		// Check if the user is authenticated
 		if (!userId) {
+			return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+		}
+
+		const { author_id } = await req.json();
+		if (!author_id) {
 			return NextResponse.error();
 		}
 		const contacts = await prisma.contact.findMany({
 			where: {
-				userId,
+				userId: author_id,
 			},
 		});
 		return NextResponse.json(contacts);

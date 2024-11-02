@@ -3,7 +3,7 @@ import useSWR from 'swr';
 import { Stack, Loader, Center, SegmentedControl } from '@mantine/core';
 import { Raven } from '@prisma/client'; // Assuming you have the Prisma types available
 import { RavenCard } from './raven-card';
-import { RavenCardEmptyNesting, RavenCardEmptyResting } from './raven-card-empty';
+import { RavenCardEmptyNesting, RavenCardEmptyActive, RavenCardEmptyResting, RavenCardEmptyRetired } from './raven-card-empty';
 /*
   READY
   ACTIVE
@@ -42,7 +42,7 @@ const RavenList = () => {
 	const { ravens, isLoading } = useRavens();
 	const [viewRavens, setViewRavens] = useState<Raven[]>([]);
 
-	const segmentValues: string[] = ['NESTING', 'FLYING', 'RESTING'];
+	const segmentValues: string[] = ['NESTING', 'FLYING', 'RESTING', 'RETIRED'];
 	const filterValues: string[] = ['READY', 'ACTIVE', 'CANCELED', 'COMPLETE'];
 	const [filterBy, setFilterBy] = useState(filterValues[0]); // READY, ACTIVE, CANCELED, COMPLETE
 	const [segmentItem, setSegmentItem] = useState(segmentValues[0]);
@@ -56,9 +56,18 @@ const RavenList = () => {
 	const handleRavenChanged = (props: { raven: Raven }) => {
 		const { raven } = props;
 		if (raven) {
-			const index: number = filterValues.indexOf(raven.state);
+			//const index: number = filterValues.indexOf(raven.state);
 			setFilterBy(raven.state);
-			setSegmentItem(filterValues[index]);
+			setSegmentItem(segmentValues[filterValues.indexOf(raven.state)]);
+		}
+	};
+
+	const handleRefreshRavens = (props: { raven: Raven }) => {
+		const { raven } = props;
+		if (raven) {
+			ravens.push(raven); // hacky way to refresh the list
+			setFilterBy(raven.state);
+			setSegmentItem(segmentValues[filterValues.indexOf(raven.state)]);
 		}
 	};
 
@@ -68,8 +77,10 @@ const RavenList = () => {
 				setViewRavens(ravens.filter((raven: Raven) => raven.state === 'READY'));
 			} else if (filterBy === 'ACTIVE') {
 				setViewRavens(ravens.filter((raven: Raven) => raven.state === 'ACTIVE'));
-			} else if (filterBy === 'CANCELED' || filterBy === 'COMPLETE') {
-				setViewRavens(ravens.filter((raven: Raven) => raven.state === 'CANCELED' || raven.state === 'COMPLETE'));
+			} else if (filterBy === 'CANCELED') {
+				setViewRavens(ravens.filter((raven: Raven) => raven.state === 'CANCELED'));
+			} else if (filterBy === 'COMPLETE') {
+				setViewRavens(ravens.filter((raven: Raven) => raven.state === 'COMPLETE'));
 			}
 		}
 	}, [ravens, isLoading, filterBy]);
@@ -95,11 +106,16 @@ const RavenList = () => {
 					{viewRavens.length > 0 ? (
 						<>
 							{viewRavens.map((raven: Raven) => (
-								<RavenCard key={raven.id} raven={raven} onChange={handleRavenChanged} />
+								<RavenCard key={raven.id} raven={raven} onChange={handleRavenChanged} onRefreshRavens={handleRefreshRavens} />
 							))}
 						</>
 					) : (
-						<>{filterBy === 'READY' ? <RavenCardEmptyNesting /> : <RavenCardEmptyResting />}</>
+						<>
+							{filterBy === 'READY' && <RavenCardEmptyNesting />}
+							{filterBy === 'ACTIVE' && <RavenCardEmptyActive />}
+							{filterBy === 'CANCELED' && <RavenCardEmptyResting />}
+							{filterBy === 'COMPLETE' && <RavenCardEmptyRetired />}
+						</>
 					)}
 				</>
 			)}
