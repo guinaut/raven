@@ -31,7 +31,7 @@ const RavenCardEmptyNesting = () => {
 
 	return (
 		<Group>
-			<Card shadow="sm" padding="lg" radius="md" withBorder w={340}>
+			<Card shadow="sm" padding="lg" radius="md" withBorder miw={340} w={{ xs: 340, sm: 340, md: 400, lg: 500, xl: 500 }}>
 				<Card.Section>
 					<Image component={NextImage} src={controlState.image} height={100} style={{ opacity: '0.25' }} alt={controlState.status} />
 				</Card.Section>
@@ -80,7 +80,7 @@ const RavenCardEmptyResting = () => {
 
 	return (
 		<Group>
-			<Card shadow="sm" padding="lg" radius="md" withBorder w={340}>
+			<Card shadow="sm" padding="lg" radius="md" withBorder miw={340} w={{ xs: 340, sm: 340, md: 400, lg: 500, xl: 500 }}>
 				<Card.Section>
 					<Image component={NextImage} src={controlState.image} height={100} style={{ opacity: '0.25' }} alt={controlState.status} />
 				</Card.Section>
@@ -125,7 +125,7 @@ const RavenCardEmptyActive = () => {
 
 	return (
 		<Group>
-			<Card shadow="sm" padding="lg" radius="md" withBorder w={340}>
+			<Card shadow="sm" padding="lg" radius="md" withBorder miw={340} w={{ xs: 340, sm: 340, md: 400, lg: 500, xl: 500 }}>
 				<Card.Section>
 					<Image component={NextImage} src={controlState.image} height={100} style={{ opacity: '0.25' }} alt={controlState.status} />
 				</Card.Section>
@@ -174,7 +174,7 @@ const RavenCardEmptyRetired = () => {
 
 	return (
 		<Group>
-			<Card shadow="sm" padding="lg" radius="md" withBorder w={340}>
+			<Card shadow="sm" padding="lg" radius="md" withBorder miw={340} w={{ xs: 340, sm: 340, md: 400, lg: 500, xl: 500 }}>
 				<Card.Section>
 					<Image component={NextImage} src={controlState.image} height={100} style={{ opacity: '0.25' }} alt={controlState.status} />
 				</Card.Section>

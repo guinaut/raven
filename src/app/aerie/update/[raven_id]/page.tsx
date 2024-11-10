@@ -2,12 +2,12 @@
 
 import useSWR from 'swr';
 import { Group, Center, Stack, Flex } from '@mantine/core';
-import { AerieHeader } from '@/components/commons';
+import { AerieHeader, PageArea } from '@/components/commons';
 import { UpdateRaven } from '@/components/update-raven';
 
 function useRaven(raven_id: string) {
 	const fetcher = async (url: string, raven_id: string) => {
-		if (raven_id.length === 0) {
+		if (!raven_id || raven_id.length === 0) {
 			return null;
 		}
 		return fetch(url, {
@@ -40,8 +40,8 @@ export default function Page({ params }: { params: { raven_id: string } }) {
 	return (
 		<Group grow>
 			<Center>
-				<Stack align="stretch">
-					<AerieHeader />
+				<Stack align="stretch" pl={20} pr={20}>
+					<AerieHeader selected_area={PageArea.RavenCRUD} />
 					<Flex gap="sm" justify="flex-start" align="flex-start">
 						<UpdateRaven raven={raven} />
 					</Flex>

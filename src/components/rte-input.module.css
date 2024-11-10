@@ -1,0 +1,27 @@
+.rteRootError,
+.rteRootFocus,
+.rteRootGeneral {
+	min-height: 75px;
+	outline: solid;
+	outline-width: 1px;
+	border-radius: 5px;
+	outline-color: #424242;
+	padding-top: 10px;
+}
+
+.rteRootFocus {
+	outline-color: #D55318;
+}
+
+.rteRootError {
+	outline-color: #E03130;
+}
+
+.editor {
+	min-height: 75px;
+	outline: none;
+	font-size: 14px;
+	line-height: 18px;
+	padding: 8px;
+	margin-left: 10px;
+}

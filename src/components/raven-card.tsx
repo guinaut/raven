@@ -10,7 +10,7 @@ import ravenLaunchImage from '../assets/raven-launching.png';
 import ravenRetiredImage from '../assets/summer-noraven.png';
 import { RavenCardTitleBar } from './raven-card-titlebar';
 import { RavenCardLearnings } from './raven-learnings';
-
+import ReactMarkdown from 'react-markdown';
 export interface RavenState {
 	status: string;
 	status_color: string;
@@ -169,17 +169,17 @@ const RavenCard = (props: RavenCardProps) => {
 
 	return (
 		<Group>
-			<Flip w={340} h={Math.round(rect.height) + 50}>
-				<Card shadow="sm" padding="lg" radius="md" withBorder w={340} ref={ref}>
+			<Flip w={{ xs: 340, sm: 340, md: 400, lg: 500, xl: 500 }} miw={340} h={Math.round(rect.height) + 50}>
+				<Card shadow="sm" padding="lg" radius="md" withBorder ref={ref} miw={340} w={{ xs: 340, sm: 340, md: 400, lg: 500, xl: 500 }}>
 					<Card.Section>
 						<Image component={NextImage} src={controlState.image} height={100} alt={controlState.status} />
 					</Card.Section>
 					<RavenCardTitleBar raven={raven} controlState={controlState} />
 					<Card.Section>
 						<Stack justify="space-between" m="sm">
-							<ScrollArea.Autosize mah={200} mx="auto">
-								<Text size="sm" c="dimmed">
-									{raven?.directive}
+							<ScrollArea.Autosize mah={200} mx="auto" w="100%">
+								<Text span size="sm" c="dimmed" w="100%">
+									<ReactMarkdown>{raven?.directive}</ReactMarkdown>
 								</Text>
 							</ScrollArea.Autosize>
 						</Stack>
@@ -199,7 +199,13 @@ const RavenCard = (props: RavenCardProps) => {
 						</Group>
 					</Card.Section>
 				</Card>
-				<RavenCardLearnings raven={raven} controlState={controlState} cardHeight={Math.round(rect.height) + 50} />
+				<RavenCardLearnings
+					w={{ xs: 340, sm: 340, md: 400, lg: 500, xl: 500 }}
+					miw={340}
+					raven={raven}
+					controlState={controlState}
+					cardHeight={Math.round(rect.height) + 50}
+				/>
 			</Flip>
 		</Group>
 	);

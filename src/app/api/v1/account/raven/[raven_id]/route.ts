@@ -1,10 +1,11 @@
-import prisma from '../../../../../../lib/prisma';
+'use server';
+
+import prisma from '@/lib/prisma';
 import { NextRequest, NextResponse } from 'next/server';
 import { getAuth } from '@clerk/nextjs/server';
 import { RavenState, RecipientType, Raven, Recipient, Contact, User } from '@prisma/client';
-import { RavenEmailData } from './_actions';
+import { RavenEmailData, sendRavenEmails } from './_actions';
 import { Prisma } from '@prisma/client';
-import { sendRavenEmails } from './_actions';
 // POST /api/post
 // Required fields in body: topic
 // Optional fields in body: directive

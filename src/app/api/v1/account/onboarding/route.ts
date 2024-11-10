@@ -1,4 +1,5 @@
-import prisma from '../../../../../lib/prisma';
+'use server';
+import prisma from '@/lib/prisma';
 import { NextRequest, NextResponse } from 'next/server';
 import { getAuth } from '@clerk/nextjs/server';
 

@@ -5,20 +5,14 @@ import { Group, PillsInput, Pill, Combobox, CheckIcon, useCombobox } from '@mant
 import useSWR from 'swr';
 import { Contact } from '@prisma/client';
 
-function useContacts(url: string, author_id: string | undefined) {
-	const fetcher = async (url: string, author_id: string | undefined) => {
-		if (!author_id || author_id.length === 0) {
-			return [];
-		}
+function useContacts(url: string) {
+	const fetcher = async (url: string) => {
 		return fetch(url, {
 			headers: new Headers({
 				'Content-Type': 'application/json',
 			}),
 			credentials: 'same-origin',
-			method: 'POST',
-			body: JSON.stringify({
-				author_id,
-			}),
+			method: 'GET',
 		})
 			.then((res) => res.json())
 			.then((data) => {
@@ -29,7 +23,7 @@ function useContacts(url: string, author_id: string | undefined) {
 			});
 	};
 
-	const { data, error, isLoading } = useSWR([`/api/v1/account/contact/list`, author_id], ([url, author_id]) => fetcher(url, author_id));
+	const { data, error, isLoading } = useSWR([url], ([url]) => fetcher(url));
 
 	return {
 		contacts: data,
@@ -51,12 +45,11 @@ const EmailSelector = (props: {
 		onDropdownClose: () => combobox.resetSelectedOption(),
 		onDropdownOpen: () => combobox.updateSelectedOptionIndex('active'),
 	});
-	const [userId, setUserId] = useState<string>('');
 	const [search, setSearch] = useState('');
 	const [pills, setPills] = useState<string[]>([]);
 	const [isPublic, setIsPublic] = useState(false);
 	const [pastEmails, setPastEmails] = useState<string[]>([]);
-	const { contacts, isLoading, isError } = useContacts('/api/v1/account/contact/list', userId);
+	const { contacts, isLoading, isError } = useContacts('/api/v1/account/contact/list');
 
 	const handleValueSelect = (val: string) => {
 		if (val === 'Public') {
@@ -113,12 +106,10 @@ const EmailSelector = (props: {
 
 	useEffect(() => {
 		if (value && value.length > 0) {
+			setIsPublic(value.includes('Public'));
 			setPills(value);
 		}
 	}, [value]);
-	useEffect(() => {
-		setUserId('cm2qbp50s0000s98b9jrf2zah');
-	}, []);
 	const render_pills = pills.map((item) => (
 		<Pill key={item} withRemoveButton onRemove={() => handleValueRemove(item)}>
 			{item}

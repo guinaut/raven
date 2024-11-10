@@ -1,14 +1,14 @@
 'use client';
 
-//import { useEffect, useState } from "react";
-import { Group, Stack, Text, TextInput, Textarea, Button, Card, Image } from '@mantine/core';
+import { useEffect } from 'react';
+import { Group, Stack, Text, TextInput, Button, Card, Image } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { Raven, Recipient } from '@prisma/client';
 import NextImage from 'next/image';
 import ravenLaunchImage from '../assets/beak-to-beak.png';
 
 import { EmailSelector } from './email-selector';
-import { useEffect } from 'react';
+import { EditorInput } from '@/components/rte-input';
 
 import { useRouter } from 'next/navigation';
 
@@ -44,6 +44,7 @@ const UpdateRaven = (props: { raven: ExtendedRaven }) => {
 	const router = useRouter();
 
 	const { raven } = props;
+	const { directive = '' } = raven || {};
 	const directiveForm = useForm({
 		initialValues: {
 			topic: '',
@@ -73,13 +74,23 @@ const UpdateRaven = (props: { raven: ExtendedRaven }) => {
 
 	useEffect(() => {
 		if (raven) {
-			const emails = raven.recipients.map((recipient) => recipient.private_email);
-			const full_emails = emails.filter((email) => email !== null);
 			directiveForm.setValues({
 				topic: raven.topic,
 				directive: raven.directive,
-				recipients: full_emails,
 			});
+
+			if (raven.send_type === 'PUBLIC') {
+				// recipients list should have ['Public'] if it is public
+				directiveForm.setValues({
+					recipients: ['Public'],
+				});
+			} else {
+				const emails = raven.recipients.map((recipient) => recipient.private_email);
+				const full_emails = emails.length > 0 ? emails.filter((email) => email !== null) : ['Public'];
+				directiveForm.setValues({
+					recipients: full_emails,
+				});
+			}
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [raven]);
@@ -94,16 +105,7 @@ const UpdateRaven = (props: { raven: ExtendedRaven }) => {
 					<Stack align="stretch" justify="flex-start" gap="md">
 						<TextInput withAsterisk label="Topic:" placeholder="What is this about?" {...directiveForm.getInputProps('topic')} />
 						<EmailSelector {...directiveForm.getInputProps('recipients')} />
-						<Textarea
-							size="sm"
-							withAsterisk
-							label="What message shall I carry?"
-							placeholder="What would you like your Raven to ask?"
-							resize="vertical"
-							autosize
-							minRows={5}
-							{...directiveForm.getInputProps('directive')}
-						/>
+						<EditorInput label="What message shall I carry?" startingValue={directive} {...directiveForm.getInputProps('directive')} />
 						<Text size="xs" c="grey.5">
 							If you are super <b>controlling</b> and want to ask questions in a certain order and think you know the best variables, you can do the
 							following:

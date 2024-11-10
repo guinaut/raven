@@ -7,7 +7,8 @@ import { useChat, Message } from 'ai/react';
 import { useEffect, useRef, useState } from 'react';
 import useSWR from 'swr';
 import Markdown from 'react-markdown';
-import { EmailChallenge } from '../../../components/email-challenge';
+import { EmailChallenge } from '@/components/email-challenge';
+import { getOpeningPrompt } from '@/utils/prompts';
 
 interface RavenMessage {
 	id: string;
@@ -22,6 +23,9 @@ interface RavenRecipient {
 	messages: RavenMessage[];
 	public_key?: string;
 	challenge?: boolean;
+	contact?: {
+		name: string;
+	};
 }
 
 function useRecipient(short_link: string, public_key: string, email: string) {
@@ -133,11 +137,11 @@ export default function Page({ params }: { params: { short_link: string } }) {
 	useEffect(() => {
 		if (recipient && messages && append) {
 			if (recipient.messages && recipient.messages.length === 1 && messages.length === 1) {
-				console.log('Appending!', messages);
+				const name = recipient.contact && recipient.contact.name && recipient.contact.name.length > 0 ? recipient.contact.name : null;
 				append(
 					{
 						role: 'system',
-						content: 'Introduce yourself and ask the right opening question.',
+						content: getOpeningPrompt({ recipient: name }),
 					},
 					{
 						body: {

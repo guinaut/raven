@@ -86,7 +86,7 @@ const RavenList = () => {
 	}, [ravens, isLoading, filterBy]);
 
 	return (
-		<Stack w={340}>
+		<Stack w={{ xs: 340, sm: 340, md: 400, lg: 500, xl: 500 }}>
 			<SegmentedControl
 				fullWidth
 				value={segmentItem}

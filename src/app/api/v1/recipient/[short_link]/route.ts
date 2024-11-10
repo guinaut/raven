@@ -1,4 +1,5 @@
-import prisma from '../../../../../lib/prisma';
+'use server';
+import prisma from '@/lib/prisma';
 import { NextResponse } from 'next/server';
 import { nanoid } from 'nanoid';
 import { Recipient, Message, Prisma } from '@prisma/client';
@@ -54,6 +55,7 @@ const getRecipientByShortLink = async (props: { recipients: Recipient[]; public_
 		include: {
 			raven: true,
 			messages: true,
+			contact: true,
 		},
 	});
 	//console.log(JSON.stringify(new_recipient, null, 2));
@@ -79,6 +81,7 @@ export async function POST(req: Request, { params }: { params: { short_link: str
 			include: {
 				raven: true,
 				messages: true,
+				contact: true,
 			},
 		});
 		// quick check on the two most common scenarios
@@ -121,6 +124,7 @@ export async function POST(req: Request, { params }: { params: { short_link: str
 							include: {
 								raven: true,
 								messages: true,
+								contact: true,
 							},
 						});
 						return NextResponse.json(send_email_recipient);

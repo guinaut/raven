@@ -1,13 +1,12 @@
 'use client';
 
-//import { useEffect, useState } from "react";
-import { useUser } from '@clerk/nextjs';
-import { Group, Stack, Text, TextInput, Textarea, Button, Card, Image } from '@mantine/core';
+import { Group, Stack, Text, TextInput, Button, Card, Image } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { Raven } from '@prisma/client';
 import NextImage from 'next/image';
 import ravenLaunchImage from '../assets/raven-friendly-wideview.png';
 import { useRouter } from 'next/navigation';
+import { EditorInput } from '@/components/rte-input';
 
 import { EmailSelector } from './email-selector';
 
@@ -35,7 +34,6 @@ const createRavenFetch = async (props: { topic: string; directive: string; recip
 
 const CreateRaven = () => {
 	const router = useRouter();
-	const { user } = useUser();
 	const directiveForm = useForm({
 		initialValues: {
 			topic: '',
@@ -45,7 +43,7 @@ const CreateRaven = () => {
 
 		validate: {
 			topic: (value) => (value.length > 1 ? null : 'Sqwak! What is this about?'),
-			directive: (value) => (value.length > 10 ? null : 'Sqwak! Need detail to ask question!'),
+			directive: (value) => (value.length > 15 ? null : 'Sqwak! Need detail to ask question!'),
 			recipients: (value) => (value.length >= 1 ? null : 'Sqwak! Who am I talking to?!'),
 		},
 	});
@@ -73,22 +71,15 @@ const CreateRaven = () => {
 					<Stack align="stretch" justify="flex-start" gap="md">
 						<TextInput withAsterisk label="Topic:" placeholder="What is this about?" {...directiveForm.getInputProps('topic')} />
 						<EmailSelector {...directiveForm.getInputProps('recipients')} />
-						<Textarea
-							size="sm"
-							withAsterisk
-							label="What message shall I carry?"
-							placeholder="What would you like your Raven to ask?"
-							resize="vertical"
-							autosize
-							minRows={5}
-							{...directiveForm.getInputProps('directive')}
-						/>
+
+						<EditorInput label="What message shall I carry?" startingValue="" {...directiveForm.getInputProps('directive')} />
+
 						<Text size="xs" c="grey.5">
 							If you are super <b>controlling</b> and want to ask questions in a certain order and think you know the best variables, you can do the
 							following:
 							<br /> {`1. What is your favorite {{color}}?`}
 							<br /> {`2. What is your favorite {{animal}}?`}
-							<br /> {`${user?.id}`}
+							<br />
 							<br />
 							Fair warning. I&apos;m a Raven and we do things our way. Sqwak!
 						</Text>

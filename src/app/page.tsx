@@ -26,7 +26,7 @@ export default function HomePage() {
 					</Center>
 					<Flex h={600} gap="sm" justify="flex-start" align="flex-start">
 						<Button variant="filled" color="orange" onClick={handleNewRaven}>
-							Send a Raven
+							Hatch a Raven
 						</Button>
 						<Button variant="filled" color="yellow" onClick={handleAerie}>
 							Visit the Aerie

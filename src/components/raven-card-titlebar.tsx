@@ -140,10 +140,10 @@ const RavenCardTitleBar = (props: { raven: ExtendedRaven; controlState: RavenSta
 						maw={22}
 						m={0}
 						p={0}
-						pl={5}
+						pl={6}
 						leftSection={
 							<ActionIcon size="md" variant="transparent" color="white.5" aria-label="Edit Raven" m={0} p={0} onClick={handleEditRaven}>
-								<BsGear style={{ width: '70%', height: '70%' }} stroke="1.5" />
+								<BsGear style={{ width: '60%', height: '60%' }} stroke="1.5" />
 							</ActionIcon>
 						}
 					></Badge>

@@ -1,12 +1,32 @@
 import { openai } from '@ai-sdk/openai';
 import { generateObject } from 'ai';
-import prisma from '../../../../../../lib/prisma';
+import prisma from '@/lib/prisma';
+import { getAnalysisPrompt } from '@/utils/prompts';
 import { Message, Recipient } from '@prisma/client';
 import { NextRequest, NextResponse } from 'next/server';
 import { getAuth } from '@clerk/nextjs/server';
-// POST /api/post
-// Required fields in body: topic
-// Optional fields in body: directive
+import { z } from 'zod';
+
+const RavenAnalysisSchema = z.object({
+	summary: z.string().describe('The summary analysis aggregating all of the participants.'),
+	details: z.array(
+		z.object({
+			id: z.string().describe('Unique identifier for the participant.'),
+			values: z.array(
+				z.object({
+					metric: z.string().describe('The name of the metric property.'),
+					value: z.string().describe('The provided value of summary of such metric.'),
+				}),
+			),
+		}),
+	),
+	aggregate: z.array(
+		z.object({
+			metric: z.string().describe('The name of the metric property.'),
+			value: z.string().describe('An aggregated summary answer across all the participants.'),
+		}),
+	),
+});
 
 interface RavenMessage extends Message {
 	content: {
@@ -74,27 +94,11 @@ RECICIPENT ${i}: ${raven.send_type === 'PRIVATE' ? recipient.private_email : rec
 			if (total_messages > raven.total_messages) {
 				const { object } = await generateObject({
 					model: openai('gpt-4o-mini'),
-					output: 'no-schema',
-					system: `You are a data analyst that is reviewing a conversation based on an interview plan and topic.
-Provide a structured json result using the variables identified in the plan attached based on the conversations provided.
-The result should be a "data" collection where each variable is an array of all answers provided.
-Last, include a variable called "summary" that provides a summary of all the answers.
-The format should be:
-interface RavenAnalysis {
-	summary: string;
-	data: {
-		[key: string]: string[];
-	};
-}
-
-DIRECTIVE:
-    ${raven.directive}
-
-PLAN:
-    ${raven.plan}
-            `,
+					schema: RavenAnalysisSchema,
+					system: getAnalysisPrompt({ directive: raven.directive, plan: raven.plan }),
 					prompt: msg_list_content,
 				});
+
 				if (object) {
 					await prisma.raven.update({
 						data: {

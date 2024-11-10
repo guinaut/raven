@@ -4,7 +4,21 @@ import prisma from '../../../lib/prisma';
 
 // Allow streaming responses up to 30 seconds
 export const maxDuration = 30;
-
+/*
+import { z } from 'zod';
+const RavenChatResponse = z.object({
+	message: z.string().describe('The response message from the AI.'),
+	component: z
+		.string()
+		.describe(`The type of component to use when rendering the message to the user.  The choices are a "SIMPLE_TEXT" or "CHOICE_LIST".`),
+	choices: z.array(
+		z.object({
+			id: z.string().describe('IF chioces are provided, the unique identifier for the choice.'),
+			text: z.string().describe('The text of the choice, IF required.'),
+		}),
+	),
+});
+*/
 interface ChatMessage {
 	role: string;
 	content: { role: string; text: string };
