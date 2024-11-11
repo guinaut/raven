@@ -112,7 +112,7 @@ const AuthorSettings = () => {
 					<Stack align="stretch" justify="flex-start" gap="md">
 						<TextInput withAsterisk label="Name:" placeholder="How your Raven will refernce you" {...authorForm.getInputProps('name')} />
 
-						<EditorInput label="Information your Raven can reference" startingValue={about} {...authorForm.getInputProps('about')} />
+						<EditorInput label="General training for your Raven" startingValue={about} {...authorForm.getInputProps('about')} />
 
 						<Text size="xs" c="grey.5">
 							Material that you are willing to share will help the Raven be more personalized. <br />
