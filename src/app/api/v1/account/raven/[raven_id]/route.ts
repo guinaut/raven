@@ -111,7 +111,7 @@ export async function POST(req: NextRequest, { params }: { params: { raven_id: s
 					const email = r.contact.email ? r.contact.email : '';
 					const name = r.contact.name ? r.contact.name : 'there';
 					const subject = `A new Raven has arrived! ${raven.topic ? raven.topic : ''}`;
-					const url = `https://${process.env.NEXT_PUBLIC_VERCEL_URL}/raven/${r.short_link}`;
+					const url = `${process.env.RAVENCHAT_PUBLIC_URL}/raven/${r.short_link}`;
 					emailData.push({ subject, author: author_name, email, name, url });
 				}
 				await sendRavenEmails(emailData);

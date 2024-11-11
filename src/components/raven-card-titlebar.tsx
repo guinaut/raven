@@ -36,7 +36,7 @@ const RavenStateBadge = (props: { controlState: RavenState; raven: Raven }) => {
 };
 
 const RavenCardTitleBar = (props: { raven: ExtendedRaven; controlState: RavenState }) => {
-	const baseURL: string = `http://${process.env.NEXT_PUBLIC_VERCEL_URL}`; // Change this to your actual base URL
+	const baseURL: string = `${process.env.RAVENCHAT_PUBLIC_URL}`; // Change this to your actual base URL
 	const router = useRouter();
 	const { raven, controlState } = props;
 	const [shortlink, setShortLink] = useState<string | null>(null);
