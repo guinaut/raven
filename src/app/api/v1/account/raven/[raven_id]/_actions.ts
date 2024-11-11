@@ -6,6 +6,7 @@ const RESEND_API_KEY = process.env.RESEND_API_KEY;
 const resend = new Resend(RESEND_API_KEY);
 
 export interface RavenEmailData {
+	subject: string;
 	author: string;
 	email: string;
 	name?: string;
@@ -17,7 +18,7 @@ export const sendRavenEmails = async (emails: RavenEmailData[]) => {
 		const emailData: CreateEmailOptions[] = emails.map((e) => ({
 			from: 'Raven <calling@ravenchat.io>',
 			to: [e.email],
-			subject: 'Hello world',
+			subject: e.subject,
 			react: NewRavenEmail({ author: e.author, name: e.name ? e.name : 'there', short_link: e.url }),
 		}));
 		await emailData.forEach(async (e) => {
