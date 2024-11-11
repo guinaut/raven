@@ -17,14 +17,11 @@ export enum PageArea {
 export function ReturnHome(props: { miw: number; selected_area?: PageArea }) {
 	const { selected_area = PageArea.None } = props;
 	const router = useRouter();
-	const handleGoHome = () => {
-		router.push('/aerie/new');
-	};
 	const handleGoSettings = () => {
 		router.push('/aerie/settings');
 	};
 	return (
-		<Group {...props} justify="flex-start" w={100} gap={4}>
+		<Group {...props} justify="flex-end" w={100} gap={4}>
 			<ActionIcon
 				size="md"
 				onClick={handleGoSettings}
@@ -33,6 +30,30 @@ export function ReturnHome(props: { miw: number; selected_area?: PageArea }) {
 				aria-label="Settings"
 			>
 				<BsGear style={{ width: '70%', height: '70%' }} stroke="1.5" />
+			</ActionIcon>
+		</Group>
+	);
+}
+
+export function GoToAerie(props: { miw: number; selected_area?: PageArea }) {
+	const { selected_area = PageArea.None } = props;
+	const router = useRouter();
+	const handleGoAerie = () => {
+		router.push('/aerie/list');
+	};
+	const handleGoHome = () => {
+		router.push('/aerie/new');
+	};
+	return (
+		<Group {...props} justify="flex-start" w={100} gap={4}>
+			<ActionIcon
+				size="md"
+				onClick={handleGoAerie}
+				variant="filled"
+				color={selected_area == PageArea.RavenList ? 'yellow' : 'orange'}
+				aria-label="Go to Aerie"
+			>
+				<GiBirdHouse style={{ width: '70%', height: '70%' }} stroke="1.5" />
 			</ActionIcon>
 			<ActionIcon
 				size="md"
@@ -47,32 +68,11 @@ export function ReturnHome(props: { miw: number; selected_area?: PageArea }) {
 	);
 }
 
-export function GoToAerie(props: { miw: number; selected_area?: PageArea }) {
-	const { selected_area = PageArea.None } = props;
-	const router = useRouter();
-	const handleGoAerie = () => {
-		router.push('/aerie/list');
-	};
-	return (
-		<Group {...props} justify="flex-end" w={100} gap={4}>
-			<ActionIcon
-				size="md"
-				onClick={handleGoAerie}
-				variant="filled"
-				color={selected_area == PageArea.RavenList ? 'yellow' : 'orange'}
-				aria-label="Go to Aerie"
-			>
-				<GiBirdHouse style={{ width: '70%', height: '70%' }} stroke="1.5" />
-			</ActionIcon>
-		</Group>
-	);
-}
-
 export function AerieHeader(props: React.PropsWithChildren<{ selected_area?: PageArea }>) {
 	const { selected_area = PageArea.None } = props;
 	return (
 		<Flex mt="sm" w="100%" {...props}>
-			<ReturnHome miw={40} selected_area={selected_area} />
+			<GoToAerie miw={40} selected_area={selected_area} />
 			<Flex w="100%">
 				<Center w="100%">
 					<Text size="xl" fw={900} variant="gradient">
@@ -80,7 +80,7 @@ export function AerieHeader(props: React.PropsWithChildren<{ selected_area?: Pag
 					</Text>
 				</Center>
 			</Flex>
-			<GoToAerie miw={40} selected_area={selected_area} />
+			<ReturnHome miw={40} selected_area={selected_area} />
 		</Flex>
 	);
 }

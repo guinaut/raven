@@ -172,11 +172,11 @@ const RavenCard = (props: RavenCardProps) => {
 			<Flip w={{ xs: 340, sm: 340, md: 400, lg: 500, xl: 500 }} miw={340} h={Math.round(rect.height) + 50}>
 				<Card shadow="sm" padding="lg" radius="md" withBorder ref={ref} miw={340} w={{ xs: 340, sm: 340, md: 400, lg: 500, xl: 500 }}>
 					<Card.Section>
-						<Image component={NextImage} src={controlState.image} height={100} alt={controlState.status} />
+						<Image component={NextImage} src={controlState.image} fit="cover" height={100} alt={controlState.status} />
 					</Card.Section>
 					<RavenCardTitleBar raven={raven} controlState={controlState} />
 					<Card.Section>
-						<Stack justify="space-between" m="sm">
+						<Stack justify="space-between" m="sm" mb={0} mt={0}>
 							<ScrollArea.Autosize mah={200} mx="auto" w="100%">
 								<Text span size="sm" c="dimmed" w="100%">
 									<ReactMarkdown>{raven?.directive}</ReactMarkdown>
@@ -186,12 +186,12 @@ const RavenCard = (props: RavenCardProps) => {
 					</Card.Section>
 					<Card.Section>
 						<Group grow>
-							<Button fullWidth mt="md" radius="md" onClick={controlState.next_action}>
+							<Button fullWidth mt={0} mb={0} radius="md" onClick={controlState.next_action}>
 								{controlState.action_text}
 							</Button>
 							{raven.state !== 'READY' && (
 								<Flip.Target>
-									<Button fullWidth color="yellow" mt="md" radius="md">
+									<Button fullWidth mt={0} mb={0} color="yellow" radius="md">
 										Learnings
 									</Button>
 								</Flip.Target>

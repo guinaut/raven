@@ -1,7 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { Card, Group, Button, Stack, ScrollArea, Text } from '@mantine/core';
-import { useElementSize } from '@mantine/hooks';
 import { Flip } from '@gfazioli/mantine-flip';
 import useSWR from 'swr';
 import ReactMarkdown from 'react-markdown';
@@ -53,7 +52,6 @@ interface RavenAnalysis {
 const RavenCardLearnings = (props: { w?: any; miw?: any; raven: ExtendedRaven; controlState: RavenState; cardHeight: number }) => {
 	const { raven, controlState, cardHeight, w = 340, miw = 340 } = props;
 	const { analysis_data, isLoading } = useLearnings('/api/v1/account/raven/analysis', raven.id);
-	const { ref, height } = useElementSize();
 	const [analysis, setAnalysis] = useState<RavenAnalysis>({
 		summary: 'Loading',
 		data: [{} as { [key: string]: string[] }],
@@ -66,26 +64,28 @@ const RavenCardLearnings = (props: { w?: any; miw?: any; raven: ExtendedRaven; c
 	}, [analysis_data, isLoading]);
 
 	return (
-		<Card shadow="sm" padding="lg" radius="md" withBorder w={w} miw={miw} h={cardHeight} ref={ref}>
-			<RavenCardTitleBar raven={raven} controlState={controlState} />
-			<Card.Section>
-				<ScrollArea.Autosize h="100%" mx="auto" scrollbars="y" offsetScrollbars>
-					<Stack justify="space-between" m="sm" gap="md" h={height - 82}>
-						<Text span size="sm" c="dimmed" w="100%" h="100%">
-							<ReactMarkdown>{analysis.summary}</ReactMarkdown>
-						</Text>
-					</Stack>
-				</ScrollArea.Autosize>
-			</Card.Section>
-			<Card.Section>
-				<Group grow>
-					<Flip.Target>
-						<Button fullWidth color="yellow" mt="md" radius="md">
-							Close
-						</Button>
-					</Flip.Target>
-				</Group>
-			</Card.Section>
+		<Card shadow="none" padding={0} radius="md" withBorder h={cardHeight}>
+			<ScrollArea.Autosize type="auto" h="100%" mx="auto" scrollbars="y">
+				<Card shadow="sm" padding="lg" radius="md" w={w} miw={miw}>
+					<RavenCardTitleBar raven={raven} controlState={controlState} />
+					<Card.Section mih={cardHeight - 88}>
+						<Stack justify="space-between" m="sm" gap="md">
+							<Text span size="sm" c="dimmed" w="100%" h="100%">
+								<ReactMarkdown>{analysis.summary}</ReactMarkdown>
+							</Text>
+						</Stack>
+					</Card.Section>
+					<Card.Section>
+						<Group grow ml={10} mr={10}>
+							<Flip.Target>
+								<Button fullWidth mt={0} mb={0} color="yellow" radius="md">
+									Close
+								</Button>
+							</Flip.Target>
+						</Group>
+					</Card.Section>
+				</Card>
+			</ScrollArea.Autosize>
 		</Card>
 	);
 };

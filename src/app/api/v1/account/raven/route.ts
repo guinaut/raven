@@ -124,7 +124,8 @@ export async function POST(req: NextRequest) {
 			//raven_data.recipients = recipients;
 			raven_data.directive = directive;
 
-			const plan_prompt = getRavenPlan({ directive, author_name: author.name });
+			const plan_prompt = getRavenPlan({ topic: topic, directive, author_name: author.name, author_about: author.about });
+
 			const plan_details = await generateText({
 				model: openai('gpt-4o-mini'),
 				system: plan_prompt,
@@ -187,13 +188,15 @@ export async function PUT(req: NextRequest) {
 		if (!topic || !directive || !author || !recipients || recipients.length === 0) {
 			return NextResponse.error();
 		}
-		const plan_prompt = getRavenPlan({ directive, author_name: author.name });
+		const plan_prompt = getRavenPlan({ topic: topic, directive, author_name: author.name, author_about: author.about });
+
 		const plan_details = await generateText({
 			model: openai('gpt-4o-mini'),
 			system: plan_prompt,
 			prompt: 'Provide a list of questions and the metrics that will be used to measure the answers.',
 		});
 		const system_prompt = getSystemChatPrompt({
+			topic,
 			directive,
 			author_name: author.name,
 			plan: plan_details.text,

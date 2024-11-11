@@ -57,7 +57,7 @@ const RavenCardTitleBar = (props: { raven: ExtendedRaven; controlState: RavenSta
 	}, [raven]);
 
 	return (
-		<Card.Section>
+		<Card.Section bg="gray.9">
 			<Group m="sm" p={0} gap={5} grow preventGrowOverflow>
 				<Group grow>
 					<Text fw={500}>{raven.topic}</Text>
@@ -160,7 +160,7 @@ const RavenCardTitleBar = (props: { raven: ExtendedRaven; controlState: RavenSta
 									</Text>
 									<Text size="xs" ta="left" fw={900}>
 										<Anchor href={`${baseURL}/raven/${r.short_link}`} target="_raven" underline="hover">
-											{`https://ravenchat.io/raven/${r.short_link}`}
+											{`${r.private_email}`}
 										</Anchor>
 									</Text>
 								</Group>
