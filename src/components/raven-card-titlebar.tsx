@@ -36,7 +36,7 @@ const RavenStateBadge = (props: { controlState: RavenState; raven: Raven }) => {
 };
 
 const RavenCardTitleBar = (props: { raven: ExtendedRaven; controlState: RavenState }) => {
-	const baseURL: string = `${process.env.RAVENCHAT_PUBLIC_URL}`; // Change this to your actual base URL
+	const baseURL: string = `${process.env.NEXT_PUBLIC_RAVENCHAT_AERIE_URL}`; // Change this to your actual base URL
 	const router = useRouter();
 	const { raven, controlState } = props;
 	const [shortlink, setShortLink] = useState<string | null>(null);
@@ -160,7 +160,7 @@ const RavenCardTitleBar = (props: { raven: ExtendedRaven; controlState: RavenSta
 									</Text>
 									<Text size="xs" ta="left" fw={900}>
 										<Anchor href={`${baseURL}/raven/${r.short_link}`} target="_raven" underline="hover">
-											{`${r.private_email}`}
+											{r.private_email}
 										</Anchor>
 									</Text>
 								</Group>
