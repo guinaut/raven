@@ -3,6 +3,7 @@ import { useRouter } from 'next/navigation';
 import { Card, Text, Group, Badge, Stack, Collapse, Tooltip, ActionIcon, Anchor, CopyButton, Modal } from '@mantine/core';
 import { MdPublic } from 'react-icons/md';
 import { BsPersonHeart, BsGear } from 'react-icons/bs';
+import { PiChatsFill } from 'react-icons/pi';
 import { useDisclosure, useMediaQuery } from '@mantine/hooks';
 import { Raven, Recipient, Contact } from '@prisma/client'; // Assuming you have the Prisma types available
 import Markdown from 'react-markdown';
@@ -44,6 +45,9 @@ const RavenCardTitleBar = (props: { raven: ExtendedRaven; controlState: RavenSta
 
 	const handleEditRaven = () => {
 		router.push(`/aerie/update/${raven.id}`);
+	};
+	const handleOpenTranscript = (short_link: string) => {
+		router.push(`${baseURL}/aerie/transcript/${short_link}`);
 	};
 
 	useEffect(() => {
@@ -155,10 +159,33 @@ const RavenCardTitleBar = (props: { raven: ExtendedRaven; controlState: RavenSta
 						{raven.recipients &&
 							raven.recipients.map((r) => (
 								<Group key={`recipient-${r.id}`}>
-									<Text size="xs" ta="right">
-										{(r as ExtendedRecipient).contact ? (r as ExtendedRecipient).contact.name : (r.private_email as string).split('@')[0]}
-									</Text>
+									<Badge
+										color="yellow"
+										pt={0}
+										pl={4}
+										maw={25}
+										m={0}
+										p={0}
+										leftSection={
+											<ActionIcon
+												size="md"
+												variant="transparent"
+												color="white.5"
+												aria-label="Open Transcript"
+												m={0}
+												p={0}
+												onClick={() => {
+													if (r.short_link) {
+														handleOpenTranscript(r.short_link);
+													}
+												}}
+											>
+												<PiChatsFill style={{ width: '60%', height: '60%' }} stroke="1.5" />
+											</ActionIcon>
+										}
+									></Badge>
 									<Text size="xs" ta="left" fw={900}>
+										{(r as ExtendedRecipient).contact ? (r as ExtendedRecipient).contact.name : (r.private_email as string).split('@')[0]}
 										<Anchor href={`${baseURL}/raven/${r.short_link}`} target="_raven" underline="hover">
 											{r.private_email}
 										</Anchor>
