@@ -47,7 +47,6 @@ const copyRaven = async (raven: ExtendedRaven) => {
 const saveRaven = async (raven: ExtendedRaven) => {
 	const { id, state } = raven;
 	try {
-		console.log('new state', state);
 		const res = await fetch(`/api/v1/account/raven/${id}`, {
 			headers: new Headers({
 				'Content-Type': 'application/json',
@@ -68,7 +67,6 @@ const saveRaven = async (raven: ExtendedRaven) => {
 interface RavenCardProps {
 	raven: ExtendedRaven;
 	onChange: (props: { raven: Raven }) => void;
-	onRefreshRavens: (props: { raven: Raven }) => void;
 }
 
 const RavenCard = (props: RavenCardProps) => {
@@ -76,9 +74,6 @@ const RavenCard = (props: RavenCardProps) => {
 
 	const {
 		onChange = () => {
-			return null;
-		},
-		onRefreshRavens = () => {
 			return null;
 		},
 	} = props;
@@ -156,7 +151,7 @@ const RavenCard = (props: RavenCardProps) => {
 					action_text: 'Send Again',
 					next_action: () => {
 						copyRaven(raven).then((data) => {
-							onRefreshRavens({
+							onChange({
 								raven: data as Raven,
 							});
 						});
