@@ -35,6 +35,7 @@
 		"js-cookie": "^3.0.5",
 		"nanoid": "^5.0.7",
 		"next": "14.2.15",
+		"posthog-js": "^1.188.0",
 		"prettier-eslint": "^16.3.0",
 		"react": "^18",
 		"react-dom": "^18",

@@ -7,6 +7,7 @@ import { MantineProvider } from '@mantine/core';
 import { theme } from './theme';
 import { ClerkProvider } from '@clerk/nextjs';
 import { dark } from '@clerk/themes';
+import posthog from 'posthog-js';
 
 export const metadata = {
 	title: 'RavenChat',
@@ -14,6 +15,13 @@ export const metadata = {
 };
 
 export default function RootLayout({ children }: React.PropsWithChildren) {
+	const posthog_key: string = process.env.NEXT_PUBLIC_POSTHOG_KEY || '';
+	if (posthog_key !== '') {
+		posthog.init(posthog_key, {
+			api_host: 'https://us.i.posthog.com',
+			person_profiles: 'identified_only', // or 'always' to create profiles for anonymous users as well
+		});
+	}
 	return (
 		<ClerkProvider
 			appearance={{
