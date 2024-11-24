@@ -11,7 +11,7 @@ const EmailChallenge = (props: { onChallengeComplete: (email: string) => void })
 		},
 
 		validate: {
-			email: (value) => (value && /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(value) ? null : 'Sqwak! You sure?'),
+			email: (value) => (value && /^[\w-.+]+@([\w-]+\.)+[\w-]{2,4}$/.test(value) ? null : 'Sqwak! You sure?'),
 		},
 	});
 

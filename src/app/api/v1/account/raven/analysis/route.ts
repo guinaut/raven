@@ -66,6 +66,7 @@ export async function POST(req: NextRequest) {
 				},
 			},
 		});
+		console.log('Analysis for Raven');
 		if (raven) {
 			let msg_list_content: string = ``;
 			let total_messages: number = 0;
@@ -90,7 +91,7 @@ RECICIPENT ${i}: ${raven.send_type === 'PRIVATE' ? recipient.private_email : rec
 					}
 				}
 			}
-
+			console.log('CONTENT', msg_list_content);
 			if (total_messages > raven.total_messages) {
 				const { object } = await generateObject({
 					model: openai('gpt-4o-mini'),

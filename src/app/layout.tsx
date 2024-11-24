@@ -24,6 +24,7 @@ export default function RootLayout({ children }: React.PropsWithChildren) {
 	}
 	return (
 		<ClerkProvider
+			dynamic
 			appearance={{
 				baseTheme: dark,
 				variables: { colorPrimary: '#D64D19' },

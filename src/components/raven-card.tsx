@@ -5,7 +5,7 @@ import { Card, Text, Group, Image, Button, Stack, ScrollArea } from '@mantine/co
 import { Flip } from '@gfazioli/mantine-flip';
 import { useResizeObserver } from '@mantine/hooks';
 import { Raven, Recipient } from '@prisma/client'; // Assuming you have the Prisma types available
-import ravenReadyImage from '../assets/raven-resting.png';
+import ravenReadyImage from '../assets/raven-winter-waiting.png';
 import ravenLaunchImage from '../assets/raven-launching.png';
 import ravenRetiredImage from '../assets/summer-noraven.png';
 import { RavenCardTitleBar } from './raven-card-titlebar';

@@ -72,6 +72,11 @@ const UpdateRaven = (props: { raven: ExtendedRaven }) => {
 		}
 	};
 
+	const handleCancelUpdate = () => {
+		directiveForm.reset();
+		router.push('/aerie/list');
+	};
+
 	useEffect(() => {
 		if (raven) {
 			directiveForm.setValues({
@@ -118,6 +123,9 @@ const UpdateRaven = (props: { raven: ExtendedRaven }) => {
 						<Group justify="center" mt="md">
 							<Button onClick={() => handleUpdateRaven()} color="yellow">
 								Those are my new instructions.
+							</Button>
+							<Button variant="outline" onClick={() => handleCancelUpdate()} color="orange">
+								Cancel
 							</Button>
 						</Group>
 					</Stack>

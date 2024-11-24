@@ -6,9 +6,11 @@ import useSWR from 'swr';
 import ReactMarkdown from 'react-markdown';
 import { RavenState, ExtendedRaven } from './raven-card';
 import { RavenCardTitleBar } from './raven-card-titlebar';
+import { useInView } from 'react-intersection-observer';
 
-function useLearnings(url: string, raven_id: string) {
+function useLearnings(inView: boolean, url: string, raven_id: string) {
 	const fetcher = async (url: string, raven_id: string) => {
+		console.log('fetching for:', raven_id);
 		if (!raven_id || raven_id.length === 0) {
 			return null;
 		}
@@ -31,7 +33,9 @@ function useLearnings(url: string, raven_id: string) {
 			});
 	};
 
-	const { data, error, isLoading } = useSWR([`/api/v1/account/raven/analysis`, raven_id], ([url, raven_id]) => fetcher(url, raven_id));
+	const { data, error, isLoading } = useSWR(inView ? [`/api/v1/account/raven/analysis`, raven_id] : null, ([url, raven_id]) =>
+		fetcher(url, raven_id),
+	);
 
 	return {
 		analysis_data: data,
@@ -51,9 +55,13 @@ interface RavenAnalysis {
 
 const RavenCardLearnings = (props: { w?: any; miw?: any; raven: ExtendedRaven; controlState: RavenState; cardHeight: number }) => {
 	const { raven, controlState, cardHeight, w = 340, miw = 340 } = props;
-	const { analysis_data, isLoading } = useLearnings('/api/v1/account/raven/analysis', raven.id);
+	const { ref, inView } = useInView({
+		/* Optional options */
+		threshold: 0.5,
+	});
+	const { analysis_data, isLoading } = useLearnings(inView, '/api/v1/account/raven/analysis', raven.id);
 	const [analysis, setAnalysis] = useState<RavenAnalysis>({
-		summary: 'Loading',
+		summary: 'Loading...',
 		data: [{} as { [key: string]: string[] }],
 	});
 
@@ -66,7 +74,7 @@ const RavenCardLearnings = (props: { w?: any; miw?: any; raven: ExtendedRaven; c
 	return (
 		<Card shadow="none" padding={0} radius="md" withBorder h={cardHeight}>
 			<ScrollArea.Autosize type="auto" h="100%" mx="auto" scrollbars="y">
-				<Card shadow="sm" padding="lg" radius="md" w={w} miw={miw}>
+				<Card shadow="sm" padding="lg" radius="md" w={w} miw={miw} ref={ref}>
 					<RavenCardTitleBar raven={raven} controlState={controlState} />
 					<Card.Section mih={cardHeight - 88}>
 						<Stack justify="space-between" m="sm" gap="md">

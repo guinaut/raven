@@ -85,7 +85,7 @@ const EmailSelector = (props: {
 
 	const handleCustomEmailAdd = () => {
 		const email = search.trim();
-		if (email && /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(email) && !pills.includes(email)) {
+		if (email && /^[\w-.+]+@([\w-]+\.)+[\w-]{2,4}$/.test(email) && !pills.includes(email)) {
 			const new_pills = [...pills, email];
 			if (!pastEmails.includes(email)) {
 				setPastEmails((current) => [...current, email]);
