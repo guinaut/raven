@@ -41,6 +41,7 @@ model Recipient {
   contact         Contact?        @relation(fields: [contactId], references: [id])
   contactId       String?
   messages        Message[]
+  findings        Json?
   createdAt       DateTime        @default(now()) @map(name: "created_at")
   updatedAt       DateTime        @updatedAt @map(name: "updated_at")
   @@map(name: "recipients")

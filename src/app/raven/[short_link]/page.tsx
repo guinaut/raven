@@ -3,9 +3,11 @@
 import { Group, Stack, Text, Box, Center, TextInput, Button, Flex, Paper, ScrollArea } from '@mantine/core';
 import Cookies from 'js-cookie';
 import { useForm } from '@mantine/form';
+import { useElementSize } from '@mantine/hooks';
 import { useChat, Message } from 'ai/react';
 import { useEffect, useRef, useState } from 'react';
-import useSWR from 'swr';
+//import useSWR from 'swr';
+import useSWRImmutable from 'swr/immutable';
 import Markdown from 'react-markdown';
 import { EmailChallenge } from '@/components/email-challenge';
 import { getOpeningPrompt } from '@/utils/prompts';
@@ -53,7 +55,7 @@ function useRecipient(short_link: string, public_key: string, email: string) {
 			});
 	};
 
-	const { data, error, isLoading } = useSWR([`/api/v1/recipient/${short_link}`, short_link, email], ([url, short_link, email]) =>
+	const { data, error, isLoading } = useSWRImmutable([`/api/v1/recipient/${short_link}`, short_link, email], ([url, short_link, email]) =>
 		fetcher(url, short_link, public_key, email),
 	);
 
@@ -65,7 +67,7 @@ function useRecipient(short_link: string, public_key: string, email: string) {
 }
 
 const updateCookie = (props: { public_key?: string; email?: string }) => {
-	const ravenCookie: string | undefined = Cookies.get('ravenCookie');
+	const ravenCookie: string = Cookies.get('ravenCookie') || '';
 	const parse_cookie = ravenCookie && ravenCookie.length > 0 ? JSON.parse(ravenCookie as string) : {};
 	const new_cookie = {
 		...parse_cookie,
@@ -79,26 +81,13 @@ const updateCookie = (props: { public_key?: string; email?: string }) => {
 
 export default function Page({ params }: { params: { short_link: string } }) {
 	const { short_link } = params;
-	//Cookies.remove('ravenCookie');
-	//updateCookie({email: ''});
-	const ravenCookie = Cookies.get('ravenCookie');
-	let public_key: string = '';
-	let cookie_email: string = '';
-	if (ravenCookie) {
-		const parse_cookie = JSON.parse(ravenCookie);
-		if (parse_cookie) {
-			if (parse_cookie.public_key) {
-				public_key = parse_cookie.public_key;
-			}
-			if (parse_cookie.email) {
-				cookie_email = parse_cookie.email;
-			}
-		}
-	}
+	const ravenCookie = Cookies.get('ravenCookie') || '{"public_key": "", "email": ""}';
+	const parse_cookie = JSON.parse(ravenCookie);
+	const { public_key = '', email = '' } = parse_cookie;
 
-	const [email, setEmail] = useState(cookie_email);
+	const [username, setUsername] = useState(email);
 	const [isPrivate, setIsPrivate] = useState(false);
-	const { data, isLoading } = useRecipient(short_link, public_key, email);
+	const { data, isLoading } = useRecipient(short_link, public_key, username);
 	const [recipient, setRecipient] = useState<RavenRecipient | null>(null);
 	const { messages, setInput, append } = useChat();
 	const [viewMessages, setViewMessages] = useState<Message[]>([]);
@@ -158,6 +147,7 @@ export default function Page({ params }: { params: { short_link: string } }) {
 
 	// for the scroll space
 	const viewport = useRef<HTMLDivElement>(null);
+	const { ref, height } = useElementSize();
 	const scrollToBottom = () =>
 		viewport.current!.scrollTo({
 			top: viewport.current!.scrollHeight,
@@ -190,7 +180,7 @@ export default function Page({ params }: { params: { short_link: string } }) {
 
 	const handleChallengeComplete = (e: string) => {
 		if (e && e.length > 0) {
-			setEmail(e);
+			setUsername(e);
 			updateCookie({ email: e });
 		}
 	};
@@ -202,16 +192,20 @@ export default function Page({ params }: { params: { short_link: string } }) {
 	}, [form.values.user_response, setInput]);
 
 	useEffect(() => {
-		if (messages.length > 1) {
+		if (messages.length > 2) {
 			setViewMessages([...messages]);
 		}
 	}, [messages]);
 
+	const lastHeight = useRef(0);
 	useEffect(() => {
-		if (viewMessages.length > 1) {
-			scrollToBottom();
+		if (height > 0 && height > lastHeight.current) {
+			if (ref && ref.current && viewport && viewport.current) {
+				scrollToBottom();
+				lastHeight.current = height;
+			}
 		}
-	}, [viewMessages]);
+	}, [height, ref]);
 
 	return (
 		<Group grow>
@@ -245,7 +239,7 @@ export default function Page({ params }: { params: { short_link: string } }) {
 							) : (
 								<>
 									<ScrollArea viewportRef={viewport}>
-										<Box w="100%" m={0}>
+										<Box w="100%" m={0} ref={ref}>
 											{viewMessages.map((m: { role: string; content: string; id: string }, index) => (
 												<Stack key={`stack-${m.id}-${index}`} p={0} m={0}>
 													{m && m.content && (

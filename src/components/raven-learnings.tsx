@@ -10,7 +10,7 @@ import { useInView } from 'react-intersection-observer';
 
 function useLearnings(inView: boolean, url: string, raven_id: string) {
 	const fetcher = async (url: string, raven_id: string) => {
-		console.log('fetching for:', raven_id);
+		//console.log('fetching for:', raven_id);
 		if (!raven_id || raven_id.length === 0) {
 			return null;
 		}
