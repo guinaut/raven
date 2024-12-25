@@ -4,14 +4,13 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getAuth } from '@clerk/nextjs/server';
 
 export async function GET(req: NextRequest) {
+	// Get the authentication data from Clerk
+	const { userId } = getAuth(req);
+	// Check if the user is authenticated
+	if (!userId) {
+		return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+	}
 	try {
-		// Get the authentication data from Clerk
-		const { userId } = getAuth(req);
-
-		// Check if the user is authenticated
-		if (!userId) {
-			return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-		}
 		const user = await prisma.user.findUnique({
 			where: {
 				external_id: userId,
